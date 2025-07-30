@@ -13,6 +13,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
+    <link rel="icon" type="image/png" href="/images/favicons/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicons/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicons/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicons/apple-touch-icon.png" />
+    <link rel="manifest" href="/images/favicons/site.webmanifest" />
+    
     <!-- Alpine.js for interactivity -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
@@ -33,6 +39,7 @@
         }
         .text-primary-red { color: var(--primary-red); }
         .bg-primary-red { background-color: var(--primary-red); }
+        .bg-dark { background-color: var(--primary-red);}
         .hover\:bg-primary-red-dark:hover { background-color: #BF360C; }
         .text-primary-gold { color: var(--primary-gold); }
         .border-primary-gold { border-color: var(--primary-gold); }
@@ -95,6 +102,7 @@
                 <a href="#ecosystem" class="nav-link font-medium">Hệ Sinh Thái</a>
                 <a href="#pride" class="nav-link font-medium">Niềm Tự Hào Việt</a>
                 <a href="#projects" class="nav-link font-medium">Dự Án</a>
+                <a href="forum.sunbii.vn" class="nav-link font-medium">Diễn đàn</a>
                 <a href="#contact" class="bg-primary-red hover:bg-primary-red-dark text-white font-bold py-2 px-6 rounded-full transition duration-300">
                     Liên Hệ
                 </a>
@@ -139,7 +147,7 @@
         <!-- HERO SECTION -->
         <section id="home" class="hero-section min-h-screen flex items-center pt-20">
             <div class="container mx-auto px-6 text-center text-white">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/330px-Flag_of_Vietnam.svg.png" alt="Biểu tượng Sao Vàng" class="mx-auto mb-6 h-24 w-24 md:h-32 md:w-32 animate-pulse">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Flag_of_Vietnam.svg/330px-Flag_of_Vietnam.svg.png" alt="Biểu tượng Sao Vàng" class="mx-auto mb-6 h-24 md:h-32 animate-pulse">
                 <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-4">
                     Kiến tạo bởi <span class="text-primary-gold">Trí tuệ Việt</span>
                 </h1>
@@ -269,7 +277,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div class="md:col-span-1">
                     <h3 class="text-2xl font-bold tracking-wider text-primary-red">
-                        SUNBII<span class="text-primary-gold">.</span>
+                        SUNBII<span class="text-primary-gold">.</span><a href="" class="pt-8 text-center text-sm text-gray-500">  Bởi Đàm Văn Bằng</a>
                     </h3>
                     <p class="mt-4 text-sm text-gray-600">Kiến tạo bởi Trí tuệ Việt.</p>
                 </div>
@@ -284,17 +292,15 @@
                         </ul>
                     </div>
                      <div>
-                        <h4 class="font-bold">Công Ty</h4>
+                        <h4 class="font-bold">Liên hệ</h4>
                         <ul class="mt-4 space-y-2 text-sm">
                             <li><a href="#" class="text-gray-600 hover:text-primary-red">Về chúng tôi</a></li>
-                            <li><a href="#" class="text-gray-600 hover:text-primary-red">Tuyển dụng</a></li>
-                            <li><a href="#" class="text-gray-600 hover:text-primary-red">Liên hệ</a></li>
+                            <li><a href="tel:0345696820" class="text-gray-600 hover:text-primary-red">Call: 0345696820</a></li>
+                            <li><a href="//zalo.me/0345696820" class="text-gray-600 hover:text-primary-red">Zalo</a></li>
+                            <li><a href="//fb.com/damvanbang2006" class="text-gray-600 hover:text-primary-red">Facebook</a></li>
                         </ul>
                     </div>
                 </div>
-            </div>
-            <div class="mt-12 border-t border-gray-200 pt-8 text-center text-sm text-gray-500">
-                <p>&copy; 2024 SUNBII Technology. All Rights Reserved.</p>
             </div>
         </div>
         <!-- Footer Image -->
