@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUNBII Technology - Kiến tạo bởi Trí tuệ Việt</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Montserrat (Alternative for AVO/Avenir) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Alpine.js for interactivity -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Custom styles */
+        :root {
+            --primary-red: #D84315; /* A deep, elegant red */
+            --primary-gold: #FBC02D; /* A warm, rich gold */
+            --light-red-bg: #FEF5F2; /* A very light, warm red background */
+            --dark-text: #263238; /* A deep blue-gray for text */
+        }
+        body {
+            font-family: 'Montserrat', sans-serif; /* Changed Font */
+            background-color: var(--light-red-bg);
+        }
+        .hero-section {
+            background-color: var(--dark-text);
+        }
+        .text-primary-red { color: var(--primary-red); }
+        .bg-primary-red { background-color: var(--primary-red); }
+        .hover\:bg-primary-red-dark:hover { background-color: #BF360C; }
+        .text-primary-gold { color: var(--primary-gold); }
+        .border-primary-gold { border-color: var(--primary-gold); }
+        .text-dark { color: var(--dark-text); }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--primary-red);
+            transition: width 0.3s;
+        }
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        .ecosystem-card {
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .ecosystem-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        .ecosystem-card .overlay {
+            transition: background-color 0.4s ease;
+        }
+        .ecosystem-card:hover .overlay {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        .ecosystem-card .content {
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        .ecosystem-card:hover .content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="text-dark">
+
+    <!-- HEADER & NAVIGATION -->
+    <header x-data="{ isNavOpen: false }" class="bg-white/80 backdrop-blur-lg fixed top-0 left-0 right-0 z-50 shadow-sm">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#home" class="text-2xl font-bold tracking-wider text-primary-red">
+                SUNBII<span class="text-primary-gold">.</span>
+            </a>
+            
+            <!-- Desktop Nav -->
+            <nav class="hidden lg:flex items-center space-x-8">
+                <a href="#ecosystem" class="nav-link font-medium">Hệ Sinh Thái</a>
+                <a href="#pride" class="nav-link font-medium">Niềm Tự Hào Việt</a>
+                <a href="#projects" class="nav-link font-medium">Dự Án</a>
+                <a href="#contact" class="bg-primary-red hover:bg-primary-red-dark text-white font-bold py-2 px-6 rounded-full transition duration-300">
+                    Liên Hệ
+                </a>
+            </nav>
+
+            <!-- Mobile Nav Button (Improved Animation) -->
+            <button @click="isNavOpen = !isNavOpen" class="lg:hidden z-50">
+                <div class="relative w-6 h-6 flex items-center justify-center">
+                    <span class="sr-only">Open main menu</span>
+                    <div class="absolute w-full">
+                        <span x-show="!isNavOpen" class="block w-full h-0.5 bg-dark transform transition duration-300 ease-in-out -translate-y-2"></span>
+                        <span x-show="!isNavOpen" class="block w-full h-0.5 bg-dark transform transition duration-300 ease-in-out"></span>
+                        <span x-show="!isNavOpen" class="block w-full h-0.5 bg-dark transform transition duration-300 ease-in-out translate-y-2"></span>
+                    </div>
+                    <div class="absolute w-full">
+                        <span x-show="isNavOpen" class="block w-full h-0.5 bg-dark transform transition duration-300 ease-in-out rotate-45"></span>
+                        <span x-show="isNavOpen" class="block w-full h-0.5 bg-dark transform transition duration-300 ease-in-out -rotate-45"></span>
+                    </div>
+                </div>
+            </button>
+        </div>
+        
+        <!-- Mobile Nav Menu (Improved Animation) -->
+        <div x-show="isNavOpen" @click.away="isNavOpen = false"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             class="lg:hidden bg-white origin-top-right">
+            <nav class="flex flex-col items-center space-y-4 py-4 border-t border-gray-200">
+                <a href="#ecosystem" @click="isNavOpen = false" class="hover:text-primary-red px-4 py-2">Hệ Sinh Thái</a>
+                <a href="#pride" @click="isNavOpen = false" class="hover:text-primary-red px-4 py-2">Niềm Tự Hào Việt</a>
+                <a href="#projects" @click="isNavOpen = false" class="hover:text-primary-red px-4 py-2">Dự Án</a>
+                <a href="#contact" @click="isNavOpen = false" class="mt-2 bg-primary-red hover:bg-primary-red-dark text-white font-bold py-2 px-6 rounded-full transition duration-300">Liên Hệ</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- HERO SECTION -->
+        <section id="home" class="hero-section min-h-screen flex items-center pt-20">
+            <div class="container mx-auto px-6 text-center text-white">
+                <img src="https://placehold.co/150x150/FBC02D/263238?text=Sao+Vang" alt="Biểu tượng Sao Vàng" class="mx-auto mb-6 h-24 w-24 md:h-32 md:w-32 animate-pulse">
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-4">
+                    Kiến tạo bởi <span class="text-primary-gold">Trí tuệ Việt</span>
+                </h1>
+                <p class="text-lg md:text-xl max-w-3xl mx-auto text-gray-300">
+                    SUNBII Technology - Nơi những bộ óc Việt Nam tạo ra các sản phẩm công nghệ vươn tầm thế giới.
+                </p>
+            </div>
+        </section>
+
+        <!-- ECOSYSTEM SECTION -->
+        <section id="ecosystem" class="py-20 lg:py-28">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-dark">Hệ Sinh Thái SUNBII</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto mt-4">Một hệ sinh thái đa dạng, vận hành bởi một tinh thần chung: Sáng tạo và Chất lượng.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Card 1: Audio -->
+                    <a href="#" class="ecosystem-card block relative h-96 rounded-lg overflow-hidden shadow-lg" style="background-image: url('https://placehold.co/600x800/37474F/FFFFFF?text=SUNBII+Audio')">
+                        <div class="overlay absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                        <div class="relative p-6 h-full flex flex-col justify-end text-white">
+                            <h3 class="text-2xl font-bold">SUNBII Audio</h3>
+                            <div class="content pt-2">
+                                <p class="font-light">Âm thanh HI-RES, thiết kế tinh xảo.</p>
+                            </div>
+                        </div>
+                    </a>
+                    <!-- Card 2: Services -->
+                    <a href="#" class="ecosystem-card block relative h-96 rounded-lg overflow-hidden shadow-lg" style="background-image: url('https://placehold.co/600x800/546E7A/FFFFFF?text=SUNBII+Services')">
+                        <div class="overlay absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                        <div class="relative p-6 h-full flex flex-col justify-end text-white">
+                            <h3 class="text-2xl font-bold">SUNBII Services</h3>
+                            <div class="content pt-2">
+                                <p class="font-light">Dịch vụ sửa chữa công nghệ cao chuyên nghiệp.</p>
+                            </div>
+                        </div>
+                    </a>
+                    <!-- Card 3: API -->
+                    <a href="#" class="ecosystem-card block relative h-96 rounded-lg overflow-hidden shadow-lg" style="background-image: url('https://placehold.co/600x800/78909C/FFFFFF?text=SUNBII+API')">
+                        <div class="overlay absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                        <div class="relative p-6 h-full flex flex-col justify-end text-white">
+                            <h3 class="text-2xl font-bold">SUNBII API</h3>
+                            <div class="content pt-2">
+                                <p class="font-light">Máy chủ xử lý tự động hóa và suy luận.</p>
+                            </div>
+                        </div>
+                    </a>
+                    <!-- Card 4: Design -->
+                    <a href="#" class="ecosystem-card block relative h-96 rounded-lg overflow-hidden shadow-lg" style="background-image: url('https://placehold.co/600x800/90A4AE/FFFFFF?text=SUNBII+Design')">
+                        <div class="overlay absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                        <div class="relative p-6 h-full flex flex-col justify-end text-white">
+                            <h3 class="text-2xl font-bold">SUNBII Design</h3>
+                            <div class="content pt-2">
+                                <p class="font-light">Dịch vụ thiết kế đồ họa chuyên nghiệp.</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- VIETNAMESE PRIDE SECTION -->
+        <section id="pride" class="py-20 lg:py-28 bg-white rounded-xl shadow-lg mx-4 md:mx-8 lg:mx-auto lg:max-w-7xl">
+            <div class="container mx-auto px-6">
+                <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                    <div class="lg:w-1/2">
+                        <span class="font-bold text-primary-red">NIỀM TỰ HÀO VIỆT NAM</span>
+                        <h2 class="text-3xl md:text-4xl font-bold text-dark mt-2 mb-6">Dấu ấn Việt Nam - Chất lượng Toàn cầu</h2>
+                        <p class="text-gray-700 mb-6">Chúng tôi không chỉ xây dựng sản phẩm, chúng tôi xây dựng niềm tin. Mỗi dòng code, mỗi bản thiết kế, mỗi linh kiện đều mang trong mình tâm huyết và trí tuệ của người Việt Nam.</p>
+                        
+                        <!-- Founder Info -->
+                        <div class="mt-8 border-t border-primary-red/30 pt-6">
+                            <p class="text-gray-700">Sáng lập & Kiến tạo bởi <a href="https://fb.com/damvanbang2006" target="_blank" rel="noopener noreferrer" class="font-bold text-primary-red hover:underline">Đàm Văn Bằng</a> (2006)</p>
+                            <p class="text-sm text-gray-500 mt-1">Mang khát vọng xây dựng thương hiệu công nghệ Việt vươn tầm thế giới.</p>
+                        </div>
+                    </div>
+                    <div class="lg:w-1/2">
+                        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhzOzQyLn9F34zQhEg6vpYofyygCf62iF9L293fbwVpFQYHByiUu-TTDMErh1S2gB7k10Sx_tMaCZ3Mej5bBAyYut4nEjJe7qEuhuRlD7hQRKAQxJErsqGb-L0XBR4SIi7WiOT1PEoFRT_CXIP9yVuxnH_oGM0YRBADZnNZT7eKwVG4l2DMbmbwPaMhXh4/s668/B%E1%BA%A3n%20%C4%90%E1%BB%93%20Vi%E1%BB%87t%20Nam%201.png" alt="Bản đồ Việt Nam" class="rounded-lg w-full">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROJECTS SECTION -->
+        <section id="projects" class="py-20 lg:py-28">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-dark">Dự Án Tiêu Biểu</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto mt-4">Những sản phẩm nói lên năng lực và đam mê của chúng tôi.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <img src="https://placehold.co/800x600/CFD8DC/263238?text=Du+An+SUNBII+API" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <span class="text-sm font-semibold text-primary-red">SUNBII API</span>
+                            <h3 class="text-xl font-bold mt-2">Hệ thống API cho Đối tác Tài chính</h3>
+                            <p class="text-gray-600 mt-2">Xây dựng hệ thống API bảo mật, hiệu năng cao, phục vụ hàng triệu giao dịch mỗi ngày.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <img src="https://placehold.co/800x600/ECEFF1/263238?text=Thiet+Ke+SUNBII+Design" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <span class="text-sm font-semibold text-primary-red">SUNBII DESIGN</span>
+                            <h3 class="text-xl font-bold mt-2">Ứng dụng Quản lý Sức khỏe</h3>
+                            <p class="text-gray-600 mt-2">Thiết kế UI/UX thân thiện, giúp người dùng dễ dàng theo dõi và cải thiện sức khỏe cá nhân.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- CONTACT SECTION -->
+        <section id="contact" class="py-20 lg:py-28 bg-dark text-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold">Sẵn sàng hợp tác?</h2>
+                <p class="max-w-xl mx-auto mt-4 text-gray-300">Hãy cho chúng tôi biết về ý tưởng của bạn. Đội ngũ SUNBII luôn sẵn sàng lắng nghe và biến ý tưởng đó thành hiện thực.</p>
+                <a href="mailto:contact@sunbii.vn" class="inline-block bg-primary-gold hover:bg-yellow-500 text-dark font-bold py-4 px-10 rounded-full transition duration-300 mt-8 text-lg">
+                    Gửi Email cho chúng tôi
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white text-dark">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-1">
+                    <h3 class="text-2xl font-bold tracking-wider text-primary-red">
+                        SUNBII<span class="text-primary-gold">.</span>
+                    </h3>
+                    <p class="mt-4 text-sm text-gray-600">Kiến tạo bởi Trí tuệ Việt.</p>
+                </div>
+                <div class="md:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div>
+                        <h4 class="font-bold">Hệ Sinh Thái</h4>
+                        <ul class="mt-4 space-y-2 text-sm">
+                            <li><a href="#" class="text-gray-600 hover:text-primary-red">SUNBII Audio</a></li>
+                            <li><a href="#" class="text-gray-600 hover:text-primary-red">SUNBII Services</a></li>
+                            <li><a href="#" class="text-gray-600 hover:text-primary-red">SUNBII API</a></li>
+                            <li><a href="#" class="text-gray-600 hover:text-primary-red">SUNBII Design</a></li>
+                        </ul>
+                    </div>
+                     <div>
+                        <h4 class="font-bold">Công Ty</h4>
+                        <ul class="mt-4 space-y-2 text-sm">
+                            <li><a href="#" class="text-gray-600 hover:text-primary-red">Về chúng tôi</a></li>
+                            <li><a href="#" class="text-gray-600 hover:text-primary-red">Tuyển dụng</a></li>
+                            <li><a href="#" class="text-gray-600 hover:text-primary-red">Liên hệ</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 border-t border-gray-200 pt-8 text-center text-sm text-gray-500">
+                <p>&copy; 2024 SUNBII Technology. All Rights Reserved.</p>
+            </div>
+        </div>
+        <!-- Footer Image -->
+        <div class="w-full">
+             <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjw9e2uLqHY_GwzS0Hec9h2jqhFvUZ_OFOwUERrRs9xTdgN3HoAFBIkHIEe4lE_Xh9L384YbFDM0-IXsAnDrhvM5JQwrPDulJ0X5xRvS5bhvEUduG8bbv6dTgQndHNaiZ30iM5Gl8pLHN1pk0bhjcez6U-M21doXhKHjJPTWtZWBgCknEJIHMLDUxEcuhU/s1500/117-%5BConverted%5D.png" alt="Footer Banner SUNBII" class="w-full h-auto object-cover">
+        </div>
+    </footer>
+
+</body>
+</html>
