@@ -103,6 +103,123 @@
 </head>
 <body class="text-dark">
 
+    <!-- Popup thong bao -->
+    <div id="my-popup-container">
+
+    <style>
+        #my-popup-container .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #my-popup-container .popup-content {
+            font-family: sans-serif;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            animation: my-popup-fade-in 0.5s ease-in-out;
+        }
+
+        @keyframes my-popup-fade-in {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        #my-popup-container .popup-content h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        #my-popup-container .popup-content p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        #my-popup-container .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+         #my-popup-container .close-button:hover {
+            color: #333;
+        }
+
+        #my-popup-container #accept-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+
+        #my-popup-container #accept-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+    <div id="welcome-popup" class="popup-overlay">
+        <div class="popup-content">
+            <span class="close-button">&times;</span>
+            <h2>Chào bạn mới! 👋</h2>
+            <p>sunbii.tech hiện chuyển sang <a href="https://forum.sunbii.vn">forum.sunbii.vn</a></p>
+            <button id="accept-button">Tôi đã hiểu</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Đảm bảo mã chỉ chạy một lần và không xung đột
+            if (document.getElementById('my-popup-container').dataset.initialized) {
+                return;
+            }
+            document.getElementById('my-popup-container').dataset.initialized = 'true';
+
+            const popup = document.getElementById('welcome-popup');
+            const closeButton = document.querySelector('#my-popup-container .close-button');
+            const acceptButton = document.getElementById('accept-button');
+
+            const showPopup = () => popup.style.display = 'flex';
+            const hidePopup = () => popup.style.display = 'none';
+
+            // Kiểm tra và hiển thị popup nếu là người dùng mới
+            if (!localStorage.getItem('hasVisited')) {
+                setTimeout(showPopup, 1000);
+                localStorage.setItem('hasVisited', 'true');
+            }
+
+            // Gán sự kiện đóng popup
+            closeButton.addEventListener('click', hidePopup);
+            acceptButton.addEventListener('click', hidePopup);
+            popup.addEventListener('click', function(event) {
+                if (event.target === popup) {
+                    hidePopup();
+                }
+            });
+        })();
+    </script>
+</div>
+    
     <!-- HEADER & NAVIGATION -->
     <header x-data="{ isNavOpen: false }" class="bg-white/80 backdrop-blur-lg fixed top-0 left-0 right-0 z-50 shadow-sm">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
