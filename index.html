@@ -99,6 +99,11 @@
             transform: translateY(0);
             opacity: 1;
         }
+        @media (min-width: 1024px) {
+          .h-logo {
+             max-height: 55px;
+           }
+        }
     </style>
 </head>
 <body class="text-dark">
@@ -223,9 +228,9 @@
     <!-- HEADER & NAVIGATION -->
     <header x-data="{ isNavOpen: false }" class="bg-white/80 backdrop-blur-lg fixed top-0 left-0 right-0 z-50 shadow-sm">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <img alt="#" scr="/images/LOGO-ECOSYSTEM-ORG.png"/>
+           
             <a href="#home" class="text-2xl font-bold tracking-wider text-primary-red">
-                SUNBII<span class="text-primary-gold">.</span>
+                <img alt="#" src="/images/LOGO-ECOSYSTEM-ORG.png" class="h-logo" style="height: 70px;position: absolute;top: 5px;">
             </a>
             
             <!-- Desktop Nav -->
