@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SUNBII WORLD — Trang chủ chơi được | Kiến tạo bởi Trí tuệ Việt</title>
+  <meta name="description" content="Trang chủ sunbii.vn phiên bản thế giới mở 3D: lái xe buggy bằng WASD, húc đổ chữ SUNBII, khám phá 6 trạm — API, Xưởng Services, Invites, EV-S3, Forum và Founder. Phím WASD để chạy, SHIFT để tăng tốc." />
+  <meta name="author" content="Đàm Văn Bằng" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://sunbii.vn/" />
+  <meta name="theme-color" content="#E8DEC8" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="SUNBII WORLD — Trang chủ chơi được" />
+  <meta property="og:description" content="Lái xe khám phá hệ sinh thái SUNBII trong thế giới 3D có vật lý thật. 6 trạm — 6 thế giới web." />
+  <meta property="og:image" content="https://sunbii.vn/images/thumbail.png" />
+
+  <link rel="icon" type="image/png" href="https://sunbii.vn/images/favicons/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="https://sunbii.vn/images/favicons/favicon.svg" />
+  <link rel="shortcut icon" href="https://sunbii.vn/images/favicons/favicon.ico" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+    }
+  }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+</head>
+<body>
+
+  <!-- Khung chứa thế giới 3D -->
+  <div id="world"></div>
+
+  <!-- ===== LOADING ===== -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <p class="loader-brand">SUNBII <span>WORLD</span></p>
+    <p class="loader-sub">ĐANG DỰNG THẾ GIỚI VẬT LÝ…</p>
+    <div class="loader-bar"><span></span></div>
+    <p class="loader-tip">Mẹo: nhấn <b>SHIFT</b> để nitro — húc đổ chữ SUNBII ngay giữa quảng trường!</p>
+  </div>
+
+  <!-- ===== TOP HUD: brand + quick teleport ===== -->
+  <header class="topbar" aria-label="Điều hướng nhanh">
+    <a class="brand" href="#" id="brandHome">SUNBII<i>▸</i>WORLD</a>
+    <nav class="teleport" id="teleportMenu" aria-label="Di chuyển nhanh tới trạm"></nav>
+  </header>
+
+  <!-- ===== KEYCAP GUIDE (desktop) ===== -->
+  <div class="keycaps" aria-hidden="true">
+    <div class="kc-row"><span class="kc" data-key="KeyW">W</span></div>
+    <div class="kc-row">
+      <span class="kc" data-key="KeyA">A</span>
+      <span class="kc" data-key="KeyS">S</span>
+      <span class="kc" data-key="KeyD">D</span>
+    </div>
+    <div class="kc-row">
+      <span class="kc kc-wide" data-key="ShiftLeft">SHIFT · NITRO</span>
+      <span class="kc kc-wide" data-key="KeyR">R · RESET</span>
+    </div>
+  </div>
+
+  <!-- ===== MOBILE D-PAD ===== -->
+  <div class="dpad" id="dpad" aria-hidden="true">
+    <button class="dp" data-key="KeyW" style="grid-area:up">▲</button>
+    <button class="dp" data-key="KeyA" style="grid-area:left">◀</button>
+    <button class="dp" data-key="KeyS" style="grid-area:down">▼</button>
+    <button class="dp" data-key="KeyD" style="grid-area:right">▶</button>
+    <button class="dp dp-boost" data-key="ShiftLeft" style="grid-area:boost">N²O</button>
+  </div>
+
+  <!-- ===== MINIMAP ===== -->
+  <canvas class="minimap" id="minimap" width="150" height="150" aria-hidden="true"></canvas>
+
+  <!-- ===== STATION DRAWER ===== -->
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <button class="drawer-close" id="drawerClose" aria-label="Đóng bảng thông tin">✕</button>
+    <p class="drawer-ch" id="drawerCh">01</p>
+    <h2 class="drawer-name" id="drawerName">—</h2>
+    <p class="drawer-sub" id="drawerSub">—</p>
+    <p class="drawer-desc" id="drawerDesc">—</p>
+    <div class="drawer-specs" id="drawerSpecs"></div>
+    <a class="drawer-cta" id="drawerCta" href="#" target="_blank" rel="noopener">Mở trang ↗</a>
+    <p class="drawer-hint">Đỗ xe vào vòng sáng để mở lại bảng này bất cứ lúc nào</p>
+  </aside>
+
+  <!-- ===== HINT TOAST ===== -->
+  <div class="toast" id="toast">
+    🚗 Lái xe: <b>W A S D</b> · Nitro: <b>SHIFT</b> · Reset: <b>R</b> — hoặc bấm menu trên phải để bay thẳng tới trạm!
+  </div>
+
+  <noscript>
+    <p style="position:fixed;inset:auto 1rem 1rem 1rem;z-index:99;background:#263238;color:#fff;padding:1rem;border-radius:8px;">
+      Thế giới 3D cần JavaScript. Nội dung nhanh: SUNBII Technology — hệ sinh thái công nghệ Việt (API · Services · Invites · EV-S3 · Forum). Liên hệ 0345 696 820 · damvanbang2006@gmail.com.
+    </p>
+  </noscript>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
