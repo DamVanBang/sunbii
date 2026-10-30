@@ -285,6 +285,7 @@ export class PlayableWorldEngine {
     this.scene.add(this.carGroup);
     this.carTilt = new THREE.Group();      // hiệu ứng nghiêng hình ảnh
     this.carGroup.add(this.carTilt);
+    this.fallbackParts = [];               // thân fallback sẽ ẩn khi model thật gắn vào
 
     const matBody = new THREE.MeshStandardMaterial({ color: '#A63B26', roughness: 0.32, metalness: 0.55 });
     const matDark = new THREE.MeshStandardMaterial({ color: '#1C2228', roughness: 0.12, metalness: 0.85 });
@@ -294,29 +295,35 @@ export class PlayableWorldEngine {
     chassis.position.y = 0.05;
     chassis.castShadow = true;
     this.carTilt.add(chassis);
+    this.fallbackParts.push(chassis);
 
     const hood = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.16, 1.1), matBody);
     hood.position.set(0, 0.38, 1.15);
     hood.rotation.x = -0.09;
     hood.castShadow = true;
     this.carTilt.add(hood);
+    this.fallbackParts.push(hood);
 
     const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.52, 1.5), matDark);
     cabin.position.set(0, 0.55, -0.25);
     cabin.castShadow = true;
     this.carTilt.add(cabin);
+    this.fallbackParts.push(cabin);
 
     const fBumper = new THREE.Mesh(new THREE.BoxGeometry(1.95, 0.28, 0.3), matChrome);
     fBumper.position.set(0, -0.12, 1.78);
     fBumper.castShadow = true;
     this.carTilt.add(fBumper);
+    this.fallbackParts.push(fBumper);
     const rBumper = fBumper.clone();
     rBumper.position.z = -1.78;
     this.carTilt.add(rBumper);
+    this.fallbackParts.push(rBumper);
     [-1, 1].forEach((sx) => {
       const skirt = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.2, 2.4), matDark);
       skirt.position.set(sx * 1.02, -0.18, 0);
       this.carTilt.add(skirt);
+      this.fallbackParts.push(skirt);
     });
 
     const lightMat = new THREE.MeshStandardMaterial({ color: '#FFF6D8', emissive: '#FFE9A8', emissiveIntensity: 1.5 });
@@ -386,6 +393,33 @@ export class PlayableWorldEngine {
       const v = Math.abs(e.contact.getImpactVelocityAlongNormal());
       if (v > 2 && this.onCollide) this.onCollide(Math.min(v / 10, 1));
     });
+  }
+
+  // Gắn model 3D tải từ mạng (thay thân xe fallback) — mặt xe hướng tiến (-z)
+  attachCarModel(root) {
+    try {
+      const bb = new THREE.Box3().setFromObject(root);
+      const size = bb.getSize(new THREE.Vector3());
+      if (size.x > size.z) root.rotation.y = -Math.PI / 2; // dọc theo z
+      root.rotation.y += Math.PI; // model mặc định nhìn +z → lật mặt về hướng tiến
+      const bb2 = new THREE.Box3().setFromObject(root);
+      root.scale.setScalar(3.8 / Math.max(bb2.getSize(new THREE.Vector3()).z, 0.001));
+      const bb3 = new THREE.Box3().setFromObject(root);
+      const center = bb3.getCenter(new THREE.Vector3());
+      root.position.x -= center.x;
+      root.position.z -= center.z;
+      root.position.y -= bb3.min.y - (-0.44);
+      root.traverse((o) => {
+        if (o.isMesh) {
+          o.castShadow = true;
+          o.receiveShadow = true;
+          if (/wheel/i.test(o.name)) o.visible = false; // giữ bánh vật lý của engine
+        }
+      });
+      this.fallbackParts.forEach((m) => { m.visible = false; });
+      this.carGroup.add(root);
+      this.carModelLoaded = true;
+    } catch (e) { /* giữ fallback */ }
   }
 
   // ---------- 5. TƯỜNG GẠCH ----------
