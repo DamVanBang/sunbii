@@ -33,7 +33,9 @@ html, body {
   position: fixed; inset: 0;
   width: 100vw; height: 100vh;
   display: block;
+  cursor: grab;               /* kéo để xoay camera quanh xe */
 }
+#world canvas:active { cursor: grabbing; }
 
 button { font-family: inherit; cursor: pointer; }
 a { color: inherit; }
@@ -128,6 +130,12 @@ a { color: inherit; }
   box-shadow: 0 0 0 rgba(0, 0, 0, 0.3);
 }
 @media (max-width: 900px) { .keycaps { display: none; } }
+
+/* Cảm ứng (máy tính bảng/điện thoại lớn) cũng có d-pad, không phụ thuộc width */
+@media (pointer: coarse) {
+  .keycaps { display: none; }
+  .dpad { display: grid; }
+}
 
 /* ---------- Mobile D-pad ---------- */
 .dpad {

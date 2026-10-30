@@ -700,6 +700,22 @@ function wireHUD() {
 
   const mm = document.getElementById('minimap');
   const mctx = mm.getContext('2d');
+  mm.style.cursor = 'pointer';
+  mm.title = 'Bấm vào chấm trạm để di chuyển nhanh';
+  mm.addEventListener('click', (e) => {
+    const r = mm.getBoundingClientRect();
+    const scale = mm.width / 96;
+    const wx = (e.clientX - r.left - mm.width / 2) / scale;
+    const wz = (e.clientY - r.top - mm.height / 2) / scale;
+    let best = null;
+    let bestD = 15;
+    STATIONS.forEach((s) => {
+      const d = Math.hypot(s.x - wx, s.z - wz);
+      if (d < bestD) { bestD = d; best = s; }
+    });
+    if (best) engine.teleportToZone(best.id);
+    else if (Math.hypot(wx, wz) < 11) engine.teleportHome();
+  });
   const fwd = new THREE.Vector3();
   function drawMinimap() {
     const S = mm.width;
@@ -861,13 +877,13 @@ new GLTFLoader().load(
   () => { /* fallback procedural đang hiển thị sẵn */ }
 );
 
-/* Camera bay từ trên cao xuống góc iso chuẩn */
-engine.camera.position.set(0, 44, 74);
-engine.cameraOffset.set(0, 42, 68);
+/* Camera bay từ trên cao xuống góc iso chuẩn (orbit intro) */
+engine.camera.position.set(0, 38, 18);
 if (window.gsap) {
-  gsap.to(engine.cameraOffset, { x: 0, y: 13, z: 17, duration: 2.6, ease: 'power2.inOut' });
+  gsap.to(engine.orbit, { pitch: 0, duration: 2.8, ease: 'power2.inOut', onComplete: () => { engine.orbit.intro = false; } });
 } else {
-  engine.cameraOffset.set(0, 13, 17);
+  engine.orbit.pitch = 0;
+  engine.orbit.intro = false;
 }
 
 requestAnimationFrame(() => {

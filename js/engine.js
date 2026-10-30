@@ -42,6 +42,8 @@ export class PlayableWorldEngine {
     this.steer = 0;
     this.engineForce = 0;
     this.flipTimer = 0;
+    this.cameraBase = { x: 0, y: 14, z: 19.5 };
+    this.orbit = { yaw: 0, pitch: 0.85, dragging: false, lastX: 0, lastY: 0, intro: true };
 
     this.initThree();
     this.initPhysics();
@@ -188,7 +190,7 @@ export class PlayableWorldEngine {
     this.scene.fog = new THREE.FogExp2('#E3D3B4', 0.0058);
 
     this.camera = new THREE.PerspectiveCamera(40, this.width / this.height, 0.5, 260);
-    this.cameraOffset = new THREE.Vector3(0, 13, 17);
+    this.cameraOffset = new THREE.Vector3(0, 14, 19.5);
     this.cameraLookTarget = new THREE.Vector3();
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -570,6 +572,28 @@ export class PlayableWorldEngine {
     };
     window.addEventListener('keydown', (e) => handleKey(e, true));
     window.addEventListener('keyup', (e) => handleKey(e, false));
+
+    /* Kéo chuột/cảm ứng trên canvas → xoay camera quanh xe */
+    const el = this.renderer.domElement;
+    el.style.touchAction = 'none';
+    el.addEventListener('pointerdown', (e) => {
+      this.orbit.dragging = true;
+      this.orbit.lastX = e.clientX;
+      this.orbit.lastY = e.clientY;
+      try { el.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!this.orbit.dragging) return;
+      const dx = e.clientX - this.orbit.lastX;
+      const dy = e.clientY - this.orbit.lastY;
+      this.orbit.lastX = e.clientX;
+      this.orbit.lastY = e.clientY;
+      this.orbit.yaw -= dx * 0.006;
+      this.orbit.pitch = THREE.MathUtils.clamp(this.orbit.pitch + dy * 0.004, -0.12, 0.6);
+    });
+    window.addEventListener('pointerup', () => { this.orbit.dragging = false; });
+    window.addEventListener('pointercancel', () => { this.orbit.dragging = false; });
+
     window.addEventListener('resize', () => {
       this.width = window.innerWidth;
       this.height = window.innerHeight;
@@ -629,13 +653,24 @@ export class PlayableWorldEngine {
     this.speedKmh = Math.hypot(vel.x, vel.z) * 3.6;
     this.throttle = (this.keys.forward ? 1 : 0) - (this.keys.backward ? 0.6 : 0);
 
-    /* Camera */
-    const desiredCamPos = new THREE.Vector3(
-      this.carGroup.position.x + this.cameraOffset.x,
-      this.carGroup.position.y + this.cameraOffset.y,
-      this.carGroup.position.z + this.cameraOffset.z
+    /* Camera orbit quanh xe: kéo chuột/cảm ứng để xoay, thả ra tự về góc chuẩn */
+    if (!this.orbit.dragging && !this.orbit.intro) {
+      this.orbit.yaw *= 0.96;
+      this.orbit.pitch *= 0.94;
+    }
+    const baseR = Math.hypot(this.cameraBase.y, this.cameraBase.z);
+    const elev = THREE.MathUtils.clamp(
+      Math.atan2(this.cameraBase.y, this.cameraBase.z) + this.orbit.pitch, 0.12, 1.25
     );
-    this.camera.position.lerp(desiredCamPos, 0.08);
+    const ox = Math.sin(this.orbit.yaw) * Math.cos(elev) * baseR;
+    const oy = Math.sin(elev) * baseR;
+    const oz = Math.cos(this.orbit.yaw) * Math.cos(elev) * baseR;
+    const desiredCamPos = new THREE.Vector3(
+      this.carGroup.position.x + ox,
+      Math.max(this.carGroup.position.y + oy, 1.4),
+      this.carGroup.position.z + oz
+    );
+    this.camera.position.lerp(desiredCamPos, 0.09);
     this.cameraLookTarget.lerp(this.carGroup.position, 0.12);
     this.camera.lookAt(this.cameraLookTarget);
     const targetFov = this.keys.boost ? 45 : 40;
