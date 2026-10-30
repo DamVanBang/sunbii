@@ -1,15 +1,14 @@
 /* ============================================================
-   PlayableWorldEngine v3 — Cinematic Warm/Autumn
-   Từ skill `playable-3d-world-bruno` + chuẩn thẩm mỹ cao cấp:
-   + Palette mùa thu ấm, FogExp2 nhẹ — không màu nhựa chói
-   + RoomEnvironment (PMREM) + ACESFilmic — vật liệu kim loại
-     nhám & kính phản chiếu thật, không cần file .hdr
-   + DirectionalLight bóng đổ PCFSoft 2048px sâu và sắc
-   + Hậu kỳ: UnrealBloom (kìm hãm) + Vignette + Warm grade
-   + RaycastVehicle chống lật: rollInfluence ~0, trục hông rộng,
-     lái giảm góc theo tốc độ, RWD, auto-unflip
-   Luật skill giữ nguyên: không cuộn, cannon-es, allowSleep,
-   Quick Teleport, procedural fallback khi mạng lỗi.
+   PlayableWorldEngine v3.2 — Cinematic Warm/Autumn + ARCADE
+   Từ skill `playable-3d-world-bruno` + chuẩn thẩm mỹ cao cấp.
+
+   VẬT LÝ ARCADE (đổi từ RaycastVehicle — gốc lật/bay/cắm đầu):
+   + Thân xe CHỈ quay trục Y (angularFactor 0,1,0) — không bao giờ
+     lật hay cắm đầu, bằng cấu trúc chứ không phải tinh chỉnh
+   + Độ cao neo cứng mặt đất (y = 0.42) — không bay, không hụt
+   + Lái: hướng + tốc độ điều khiển trực tiếp, tăng/giảm mượt
+   + Nghiêng vô lăng/thân xe chỉ là HIỆU ỨNG HÌNH ẢNH (carTilt)
+   + cannon-es vẫn lo va chạm: gạch, chữ, ky, cell, phuy đổ được
    ============================================================ */
 
 import * as THREE from 'three';
@@ -36,14 +35,15 @@ export class PlayableWorldEngine {
     this.zones = [];
     this.activeZone = null;
     this.pulse = [];
-    this.onFrame = [];   // các callback trang trí mỗi frame (app.js đăng ký)
+    this.onFrame = [];
     this.onCollide = null;
     this.audio = null;
-    this.steer = 0;
-    this.engineForce = 0;
-    this.flipTimer = 0;
-    this.cameraBase = { x: 0, y: 14, z: 19.5 };
+
+    this.carSpeed = 0;      // m/s (dấu: + tiến)
+    this.carHeading = 0;    // rad (0 = nhìn về -z)
+    this.groundY = 0.42;    // độ cao neo cứng của thân xe
     this.orbit = { yaw: 0, pitch: 0.85, dragging: false, lastX: 0, lastY: 0, intro: true };
+    this.cameraBase = { x: 0, y: 14, z: 19.5 };
 
     this.initThree();
     this.initPhysics();
@@ -183,14 +183,14 @@ export class PlayableWorldEngine {
     return sprite;
   }
 
-  // ---------- 1. THREE.JS: ACES + Studio env + Shadow sâu ----------
+  // ---------- 1. THREE.JS: ACES + Studio env + Shadow sâu + Post ----------
   initThree() {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color('#E3D3B4');
     this.scene.fog = new THREE.FogExp2('#E3D3B4', 0.0058);
 
     this.camera = new THREE.PerspectiveCamera(40, this.width / this.height, 0.5, 260);
-    this.cameraOffset = new THREE.Vector3(0, 14, 19.5);
+    this.camera.position.set(0, 38, 20);
     this.cameraLookTarget = new THREE.Vector3();
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
@@ -201,13 +201,12 @@ export class PlayableWorldEngine {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 0.98;
     this.container.appendChild(this.renderer.domElement);
+    this.renderer.domElement.style.touchAction = 'none';
 
-    // Studio lighting procedural (không .hdr): phản xạ lên kim loại/kính
     const pmrem = new THREE.PMREMGenerator(this.renderer);
     this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
     pmrem.dispose();
 
-    // DirectionalLight: bóng sâu sắc
     this.dirLight = new THREE.DirectionalLight('#FFEFD2', 2.1);
     this.dirLight.position.set(30, 46, 22);
     this.dirLight.castShadow = true;
@@ -223,7 +222,6 @@ export class PlayableWorldEngine {
     this.dirLight.shadow.normalBias = 0.03;
     this.scene.add(this.dirLight);
 
-    // Hậu kỳ: Render → Bloom (kìm hãm) → Vignette + Warm grade → Output
     this.composer = new EffectComposer(
       this.renderer,
       new THREE.WebGLRenderTarget(this.width, this.height, { samples: 4, type: THREE.HalfFloatType })
@@ -240,7 +238,7 @@ export class PlayableWorldEngine {
           vec4 c = texture2D(tDiffuse, vUv);
           float d = distance(vUv, vec2(0.5, 0.44));
           c.rgb *= 1.0 - smoothstep(0.42, 0.95, d) * uStrength;
-          c.rgb *= vec3(1.03, 1.0, 0.955); // grade ấm nhẹ
+          c.rgb *= vec3(1.03, 1.0, 0.955);
           gl_FragColor = vec4(c.rgb, 1.0);
         }
       `,
@@ -259,7 +257,7 @@ export class PlayableWorldEngine {
     this.defaultMaterial = new CANNON.Material('default');
     const contactMat = new CANNON.ContactMaterial(this.defaultMaterial, this.defaultMaterial, {
       friction: 0.42,
-      restitution: 0.18,
+      restitution: 0.1,
     });
     this.world.defaultContactMaterial = contactMat;
 
@@ -269,7 +267,7 @@ export class PlayableWorldEngine {
     this.world.addBody(floorBody);
   }
 
-  // ---------- 3. SÀN + DỐC ----------
+  // ---------- 3. SÀN (đã vẽ từ app.js) ----------
   buildEnvironment() {
     const outer = new THREE.Mesh(
       new THREE.PlaneGeometry(400, 400),
@@ -279,75 +277,14 @@ export class PlayableWorldEngine {
     outer.position.y = -0.02;
     outer.receiveShadow = true;
     this.scene.add(outer);
-
-    this.createStaticRamp(new THREE.Vector3(8, 0.8, -8), new THREE.Vector3(4, 1.6, 6), -0.28);
-    this.createStaticRamp(new THREE.Vector3(-10, 0.8, 6), new THREE.Vector3(4, 1.6, 6), 0.28);
   }
 
-  createStaticRamp(pos, size, tiltX) {
-    const geo = new THREE.BoxGeometry(size.x, size.y, size.z);
-    const mat = new THREE.MeshStandardMaterial({ color: '#B5533C', roughness: 0.55 });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.copy(pos);
-    mesh.rotation.x = tiltX;
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    this.scene.add(mesh);
-
-    const shape = new CANNON.Box(new CANNON.Vec3(size.x / 2, size.y / 2, size.z / 2));
-    const body = new CANNON.Body({ mass: 0 });
-    body.addShape(shape);
-    body.position.copy(pos);
-    body.quaternion.copy(mesh.quaternion);
-    this.world.addBody(body);
-  }
-
-  // ---------- 4. XE + RAYCAST VEHICLE (chống lật) ----------
+  // ---------- 4. XE ARCADE (không bao giờ lật/bay/cắm đầu) ----------
   buildVehicle() {
-    const chassisShape = new CANNON.Box(new CANNON.Vec3(0.98, 0.4, 1.72));
-    this.chassisBody = new CANNON.Body({ mass: 34, material: this.defaultMaterial, angularDamping: 0.5 });
-    this.chassisBody.addShape(chassisShape);
-    this.chassisBody.position.set(0, 2.6, 5);
-
-    this.vehicle = new CANNON.RaycastVehicle({
-      chassisBody: this.chassisBody,
-      indexRightAxis: 0,
-      indexUpAxis: 1,
-      indexForwardAxis: 2,
-    });
-
-    const wheelOpt = {
-      radius: 0.46,
-      directionLocal: new CANNON.Vec3(0, -1, 0),
-      suspensionStiffness: 46,
-      suspensionRestLength: 0.36,
-      frictionSlip: 2.4,
-      dampingRelaxation: 2.8,
-      dampingCompression: 4.6,
-      maxSuspensionForce: 100000,
-      rollInfluence: 0.004,          // CHỐNG LẬT: gần bằng 0
-      axleLocal: new CANNON.Vec3(-1, 0, 0),
-      chassisConnectionPointLocal: new CANNON.Vec3(),
-      maxSuspensionTravel: 0.32,
-      customSlidingRotationalSpeed: -30,
-      useCustomSlidingRotationalSpeed: true,
-    };
-    // Trục hông rộng ±1.08 (chống lật) — bánh trước z +1.22
-    [
-      new CANNON.Vec3(1.08, -0.12, 1.22),
-      new CANNON.Vec3(-1.08, -0.12, 1.22),
-      new CANNON.Vec3(1.08, -0.12, -1.22),
-      new CANNON.Vec3(-1.08, -0.12, -1.22),
-    ].forEach((p) => {
-      wheelOpt.chassisConnectionPointLocal = p;
-      this.vehicle.addWheel(wheelOpt);
-    });
-    this.vehicle.addToWorld(this.world);
-
-    /* Mesh xe procedural — FALLBACK khi model mạng chưa tải/ lỗi */
-    this.fallbackParts = [];
-    this.carGroup = new THREE.Group();
+    this.carGroup = new THREE.Group();     // bám theo vật lý (vị trí + yaw)
     this.scene.add(this.carGroup);
+    this.carTilt = new THREE.Group();      // hiệu ứng nghiêng hình ảnh
+    this.carGroup.add(this.carTilt);
 
     const matBody = new THREE.MeshStandardMaterial({ color: '#A63B26', roughness: 0.32, metalness: 0.55 });
     const matDark = new THREE.MeshStandardMaterial({ color: '#1C2228', roughness: 0.12, metalness: 0.85 });
@@ -356,36 +293,30 @@ export class PlayableWorldEngine {
     const chassis = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.55, 3.3), matBody);
     chassis.position.y = 0.05;
     chassis.castShadow = true;
-    this.carGroup.add(chassis);
-    this.fallbackParts.push(chassis);
+    this.carTilt.add(chassis);
 
     const hood = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.16, 1.1), matBody);
     hood.position.set(0, 0.38, 1.15);
     hood.rotation.x = -0.09;
     hood.castShadow = true;
-    this.carGroup.add(hood);
-    this.fallbackParts.push(hood);
+    this.carTilt.add(hood);
 
     const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.52, 1.5), matDark);
     cabin.position.set(0, 0.55, -0.25);
     cabin.castShadow = true;
-    this.carGroup.add(cabin);
-    this.fallbackParts.push(cabin);
+    this.carTilt.add(cabin);
 
     const fBumper = new THREE.Mesh(new THREE.BoxGeometry(1.95, 0.28, 0.3), matChrome);
     fBumper.position.set(0, -0.12, 1.78);
     fBumper.castShadow = true;
-    this.carGroup.add(fBumper);
-    this.fallbackParts.push(fBumper);
+    this.carTilt.add(fBumper);
     const rBumper = fBumper.clone();
     rBumper.position.z = -1.78;
-    this.carGroup.add(rBumper);
-    this.fallbackParts.push(rBumper);
+    this.carTilt.add(rBumper);
     [-1, 1].forEach((sx) => {
       const skirt = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.2, 2.4), matDark);
       skirt.position.set(sx * 1.02, -0.18, 0);
-      this.carGroup.add(skirt);
-      this.fallbackParts.push(skirt);
+      this.carTilt.add(skirt);
     });
 
     const lightMat = new THREE.MeshStandardMaterial({ color: '#FFF6D8', emissive: '#FFE9A8', emissiveIntensity: 1.5 });
@@ -393,83 +324,68 @@ export class PlayableWorldEngine {
     [-0.62, 0.62].forEach((sx) => {
       const hl = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.16, 0.06), lightMat);
       hl.position.set(sx, 0.12, 1.72);
-      this.carGroup.add(hl);
+      this.carTilt.add(hl);
       const tl = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.14, 0.06), tailMat);
       tl.position.set(sx, 0.12, -1.72);
-      this.carGroup.add(tl);
+      this.carTilt.add(tl);
     });
 
     [-0.3, 0.3].forEach((sx) => {
       const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.24, 12), matChrome);
       pipe.rotation.x = Math.PI / 2;
       pipe.position.set(sx, -0.14, -1.8);
-      this.carGroup.add(pipe);
+      this.carTilt.add(pipe);
     });
 
     const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.1, 8), matDark);
     antenna.position.set(-0.6, 1.25, -1.0);
-    this.carGroup.add(antenna);
+    this.carTilt.add(antenna);
     this.flag = new THREE.Mesh(
       new THREE.PlaneGeometry(0.55, 0.34),
       new THREE.MeshStandardMaterial({ color: '#FBC02D', side: THREE.DoubleSide, roughness: 0.6 })
     );
     this.flag.position.set(-0.32, 1.62, -1.0);
-    this.carGroup.add(this.flag);
+    this.carTilt.add(this.flag);
 
-    /* 4 bánh: lốp + vành */
+    /* Khối vật lý: CHỈ trục Y được quay — lật/cắm đầu là bất khả thi */
+    const chassisShape = new CANNON.Box(new CANNON.Vec3(0.98, 0.4, 1.72));
+    this.chassisBody = new CANNON.Body({
+      mass: 34,
+      material: this.defaultMaterial,
+      linearDamping: 0.25,
+      angularDamping: 0.9,
+    });
+    this.chassisBody.addShape(chassisShape);
+    this.chassisBody.position.set(0, this.groundY, 5);
+    this.chassisBody.angularFactor.set(0, 1, 0); // ★ luật vàng: chỉ yaw
+    this.chassisBody.updateMassProperties();
+    this.world.addBody(this.chassisBody);
+
+    /* 4 bánh hình ảnh: xoay theo tốc độ, 2 bánh trước đánh lái */
     this.wheelMeshes = [];
-    const tireGeo = new THREE.CylinderGeometry(0.46, 0.46, 0.4, 24);
+    const tireGeo = new THREE.CylinderGeometry(0.44, 0.44, 0.38, 20);
     tireGeo.rotateZ(Math.PI / 2);
-    const hubGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.42, 12);
+    const hubGeo = new THREE.CylinderGeometry(0.19, 0.19, 0.4, 12);
     hubGeo.rotateZ(Math.PI / 2);
-    for (let i = 0; i < 4; i++) {
+    const tireMat = new THREE.MeshStandardMaterial({ color: '#232323', roughness: 0.75 });
+    const hubMat = new THREE.MeshStandardMaterial({ color: '#C8CDD4', roughness: 0.2, metalness: 0.9 });
+    [[-1.08, 1.22, true], [1.08, 1.22, true], [-1.08, -1.22, false], [1.08, -1.22, false]].forEach(([x, z, front]) => {
       const g = new THREE.Group();
-      const tire = new THREE.Mesh(tireGeo, new THREE.MeshStandardMaterial({ color: '#232323', roughness: 0.75 }));
+      const tire = new THREE.Mesh(tireGeo, tireMat);
       tire.castShadow = true;
-      const hub = new THREE.Mesh(hubGeo, matChrome);
+      const hub = new THREE.Mesh(hubGeo, hubMat);
       g.add(tire, hub);
-      this.scene.add(g);
+      g.position.set(x, 0.05, z);
+      g.userData.front = front;
+      this.carGroup.add(g);
       this.wheelMeshes.push(g);
-    }
+    });
 
     /* Va chạm → âm thanh */
     this.chassisBody.addEventListener('collide', (e) => {
       const v = Math.abs(e.contact.getImpactVelocityAlongNormal());
-      if (v > 2.2 && this.onCollide) this.onCollide(Math.min(v / 12, 1));
+      if (v > 2 && this.onCollide) this.onCollide(Math.min(v / 10, 1));
     });
-
-    this.engineForce = 0;
-    this.steer = 0;
-    this.speedKmh = 0;
-    this.throttle = 0;
-  }
-
-  // Gắn model 3D tải từ mạng (thay thân xe fallback)
-  attachCarModel(root) {
-    try {
-      const bb = new THREE.Box3().setFromObject(root);
-      const size = bb.getSize(new THREE.Vector3());
-      if (size.x > size.z) root.rotation.y = Math.PI / 2;
-      const bb2 = new THREE.Box3().setFromObject(root);
-      const size2 = bb2.getSize(new THREE.Vector3());
-      const scale = 3.8 / Math.max(size2.z, size2.x, 0.001);
-      root.scale.setScalar(scale);
-      const bb3 = new THREE.Box3().setFromObject(root);
-      const center = bb3.getCenter(new THREE.Vector3());
-      root.position.x -= center.x;
-      root.position.z -= center.z;
-      root.position.y -= bb3.min.y - (-0.82);
-      root.traverse((o) => {
-        if (o.isMesh) {
-          o.castShadow = true;
-          o.receiveShadow = true;
-          if (/wheel/i.test(o.name)) o.visible = false; // giữ bánh vật lý của engine
-        }
-      });
-      this.fallbackParts.forEach((m) => { m.visible = false; });
-      this.carGroup.add(root);
-      this.carModelLoaded = true;
-    } catch (e) { /* giữ fallback */ }
   }
 
   // ---------- 5. TƯỜNG GẠCH ----------
@@ -544,19 +460,19 @@ export class PlayableWorldEngine {
   teleportToZone(zoneId) {
     const target = this.zones.find((z) => z.id === zoneId);
     if (!target) return;
-    this.chassisBody.position.set(target.x, 2.5, target.z + 3.2);
+    this.chassisBody.position.set(target.x, this.groundY, target.z + 3.4);
     this.chassisBody.velocity.set(0, 0, 0);
     this.chassisBody.angularVelocity.set(0, 0, 0);
-    this.chassisBody.quaternion.setFromEuler(0, 0, 0);
-    this.flipTimer = 0;
+    this.carHeading = 0;
+    this.carSpeed = 0;
   }
 
   teleportHome() {
-    this.chassisBody.position.set(0, 2.5, 6);
+    this.chassisBody.position.set(0, this.groundY, 6);
     this.chassisBody.velocity.set(0, 0, 0);
     this.chassisBody.angularVelocity.set(0, 0, 0);
-    this.chassisBody.quaternion.setFromEuler(0, 0, 0);
-    this.flipTimer = 0;
+    this.carHeading = 0;
+    this.carSpeed = 0;
   }
 
   // ---------- 7. PHÍM ----------
@@ -575,7 +491,6 @@ export class PlayableWorldEngine {
 
     /* Kéo chuột/cảm ứng trên canvas → xoay camera quanh xe */
     const el = this.renderer.domElement;
-    el.style.touchAction = 'none';
     el.addEventListener('pointerdown', (e) => {
       this.orbit.dragging = true;
       this.orbit.lastX = e.clientX;
@@ -604,56 +519,78 @@ export class PlayableWorldEngine {
     });
   }
 
-  // ---------- 8. VÒNG LẶP ----------
+  // ---------- 8. VÒNG LẶP ARCADE ----------
   animate() {
     requestAnimationFrame(() => this.animate());
     if (document.hidden) return;
     const dt = Math.min(this.clock.getDelta(), 0.1);
 
-    /* Lái: góc quay giảm theo tốc độ (không văng, không lật) */
-    const speedMs = this.chassisBody.velocity.length();
-    const maxSteer = 0.4 / (1 + speedMs * 0.05);
-    const steerTarget = ((this.keys.left ? 1 : 0) - (this.keys.right ? 1 : 0)) * maxSteer;
-    this.steer = THREE.MathUtils.lerp(this.steer, steerTarget, dt * 7);
-    this.vehicle.setSteeringValue(this.steer, 0);
-    this.vehicle.setSteeringValue(this.steer, 1);
+    /* Lái arcade: tăng/giảm tốc mượt, quay đầu khi có tốc độ */
+    const accel = this.keys.boost ? 26 : 20;
+    const maxSpeed = this.keys.boost ? 21 : 14;
+    if (this.keys.forward) this.carSpeed = Math.min(this.carSpeed + accel * dt, maxSpeed);
+    else if (this.keys.backward) this.carSpeed = Math.max(this.carSpeed - accel * 0.8 * dt, -7);
+    else this.carSpeed = THREE.MathUtils.lerp(this.carSpeed, 0, dt * 2.6);
 
-    /* RWD — lực đổ vào bánh sau, tăng dần mượt */
-    const maxForce = this.keys.boost ? 2100 : 1350;
-    const forceTarget = this.keys.forward ? maxForce : this.keys.backward ? -maxForce * 0.55 : 0;
-    this.engineForce = THREE.MathUtils.lerp(this.engineForce, forceTarget, dt * 4.5);
-    this.vehicle.applyEngineForce(this.engineForce, 2);
-    this.vehicle.applyEngineForce(this.engineForce, 3);
+    if (Math.abs(this.carSpeed) > 0.4) {
+      const dir = this.carSpeed > 0 ? 1 : -1;
+      if (this.keys.left) this.carHeading += 2.3 * dt * dir;
+      if (this.keys.right) this.carHeading -= 2.3 * dt * dir;
+    }
 
-    const braking = this.keys.forward || this.keys.backward ? 0.1 : 2.4;
-    for (let i = 0; i < 4; i++) this.vehicle.setBrake(braking, i);
+    /* Điều khiển trực tiếp thân vật lý: chỉ vị trí + yaw */
+    this.chassisBody.wakeUp();
+    this.chassisBody.velocity.x = -Math.sin(this.carHeading) * this.carSpeed;
+    this.chassisBody.velocity.z = -Math.cos(this.carHeading) * this.carSpeed;
+    this.chassisBody.angularVelocity.set(0, 0, 0);
+    this.chassisBody.quaternion.setFromEuler(0, this.carHeading, 0);
+
+    /* Neo cứng mặt đất — không bay, không chìm, không nảy */
+    this.chassisBody.position.y = this.groundY;
 
     this.world.step(1 / 60, dt, 3);
 
-    /* Sync xe + bánh */
+    /* Sau step: siết lại neo (va chạm có thể đẩy nhẹ) */
+    this.chassisBody.position.y = this.groundY;
+    this.chassisBody.quaternion.setFromEuler(0, this.carHeading, 0);
+
+    /* Sync hình ảnh */
     this.carGroup.position.copy(this.chassisBody.position);
-    this.carGroup.quaternion.copy(this.chassisBody.quaternion);
-    for (let i = 0; i < 4; i++) {
-      this.vehicle.updateWheelTransform(i);
-      const t = this.vehicle.wheelInfos[i].worldTransform;
-      this.wheelMeshes[i].position.copy(t.position);
-      this.wheelMeshes[i].quaternion.copy(t.quaternion);
-    }
+    this.carGroup.rotation.set(0, this.carHeading, 0);
 
-    /* Tự động hối xe nếu bị lật ngược */
-    const up = new THREE.Vector3(0, 1, 0).applyQuaternion(this.carGroup.quaternion);
-    if (up.y < 0.25 && speedMs < 2) {
-      this.flipTimer += dt;
-      if (this.flipTimer > 1.6) { this.teleportHome(); this.flipTimer = 0; }
-    } else this.flipTimer = 0;
+    /* Nghiêng hình ảnh: chúi nhẹ khi phanh, ngửa khi tăng tốc — chỉ cosmetic */
+    let targetPitch = 0;
+    if (this.keys.forward) targetPitch = 0.026;
+    else if (this.keys.backward) targetPitch = -0.02;
+    else if (Math.abs(this.carSpeed) > 1) targetPitch = -0.012;
+    const targetRoll = THREE.MathUtils.clamp(
+      ((this.keys.left ? 1 : 0) - (this.keys.right ? 1 : 0)) * Math.min(Math.abs(this.carSpeed) / 14, 1) * 0.055,
+      -0.07, 0.07
+    );
+    this.carTilt.rotation.x = THREE.MathUtils.lerp(this.carTilt.rotation.x, targetPitch, dt * 5);
+    this.carTilt.rotation.z = THREE.MathUtils.lerp(this.carTilt.rotation.z, targetRoll, dt * 5);
 
-    /* Tốc độ km/h */
-    const fwd = this.chassisBody.quaternion.vmult(new CANNON.Vec3(0, 0, -1));
-    const vel = this.chassisBody.velocity;
-    this.speedKmh = Math.hypot(vel.x, vel.z) * 3.6;
+    /* Bánh xe: xoay theo tốc độ + đánh lái hình ảnh */
+    const wheelSpin = this.carSpeed * dt * 2.4;
+    this.wheelMeshes.forEach((g, i) => {
+      g.children[0].rotation.x -= wheelSpin;
+      if (g.userData.front) g.rotation.y = THREE.MathUtils.lerp(g.rotation.y, this.steerVisual || 0, dt * 8);
+    });
+    this.steerVisual = THREE.MathUtils.lerp(
+      this.steerVisual || 0,
+      ((this.keys.left ? 1 : 0) - (this.keys.right ? 1 : 0)) * 0.38,
+      dt * 8
+    );
+
+    /* Cờ phất */
+    const elapsed = this.clock.getElapsedTime();
+    this.flag.rotation.y = Math.sin(elapsed * 9) * (0.2 + Math.min(Math.abs(this.carSpeed) / 14, 1) * 0.6);
+
+    /* Tốc độ hiển thị */
+    this.speedKmh = Math.abs(this.carSpeed) * 3.6;
     this.throttle = (this.keys.forward ? 1 : 0) - (this.keys.backward ? 0.6 : 0);
 
-    /* Camera orbit quanh xe: kéo chuột/cảm ứng để xoay, thả ra tự về góc chuẩn */
+    /* Camera orbit quanh xe */
     if (!this.orbit.dragging && !this.orbit.intro) {
       this.orbit.yaw *= 0.96;
       this.orbit.pitch *= 0.94;
@@ -667,7 +604,7 @@ export class PlayableWorldEngine {
     const oz = Math.cos(this.orbit.yaw) * Math.cos(elev) * baseR;
     const desiredCamPos = new THREE.Vector3(
       this.carGroup.position.x + ox,
-      Math.max(this.carGroup.position.y + oy, 1.4),
+      this.carGroup.position.y + oy,
       this.carGroup.position.z + oz
     );
     this.camera.position.lerp(desiredCamPos, 0.09);
@@ -679,9 +616,8 @@ export class PlayableWorldEngine {
       this.camera.updateProjectionMatrix();
     }
 
-    /* Trạm + pad + auto-unflip zone check */
+    /* Trạm + zone check */
     let foundZone = null;
-    const elapsed = this.clock.getElapsedTime();
     for (const z of this.zones) {
       z.totemMesh.rotation.y = elapsed * 1.1;
       z.totemMesh.position.y = 2.2 + Math.sin(elapsed * 2.2) * 0.22;
