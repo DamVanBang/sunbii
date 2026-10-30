@@ -42,6 +42,7 @@ export class PlayableWorldEngine {
     this.carSpeed = 0;      // m/s (dấu: + tiến)
     this.carHeading = 0;    // rad (0 = nhìn về -z)
     this.groundY = 0.42;    // độ cao neo cứng của thân xe
+    this.axlePos = { x: 0, z: 6.22 }; // TRỤC BÁNH SAU — tâm xoay của xe
     this.orbit = { yaw: 0, pitch: 0.85, dragging: false, lastX: 0, lastY: 0, intro: true };
     this.cameraBase = { x: 0, y: 14, z: 19.5 };
 
@@ -368,7 +369,7 @@ export class PlayableWorldEngine {
     this.chassisBody.updateMassProperties();
     this.world.addBody(this.chassisBody);
 
-    /* 4 bánh hình ảnh: xoay theo tốc độ, 2 bánh trước đánh lái */
+    /* 4 bánh hình ảnh: XOAY THEO TỐC ĐỘ — 2 bánh TRƯỞC (phía -z) đánh lái */
     this.wheelMeshes = [];
     const tireGeo = new THREE.CylinderGeometry(0.44, 0.44, 0.38, 20);
     tireGeo.rotateZ(Math.PI / 2);
@@ -376,7 +377,7 @@ export class PlayableWorldEngine {
     hubGeo.rotateZ(Math.PI / 2);
     const tireMat = new THREE.MeshStandardMaterial({ color: '#232323', roughness: 0.75 });
     const hubMat = new THREE.MeshStandardMaterial({ color: '#C8CDD4', roughness: 0.2, metalness: 0.9 });
-    [[-1.08, 1.22, true], [1.08, 1.22, true], [-1.08, -1.22, false], [1.08, -1.22, false]].forEach(([x, z, front]) => {
+    [[-1.08, -1.22, true], [1.08, -1.22, true], [-1.08, 1.22, false], [1.08, 1.22, false]].forEach(([x, z, front]) => {
       const g = new THREE.Group();
       const tire = new THREE.Mesh(tireGeo, tireMat);
       tire.castShadow = true;
@@ -494,19 +495,23 @@ export class PlayableWorldEngine {
   teleportToZone(zoneId) {
     const target = this.zones.find((z) => z.id === zoneId);
     if (!target) return;
-    this.chassisBody.position.set(target.x, this.groundY, target.z + 3.4);
-    this.chassisBody.velocity.set(0, 0, 0);
-    this.chassisBody.angularVelocity.set(0, 0, 0);
     this.carHeading = 0;
     this.carSpeed = 0;
+    this.axlePos = { x: target.x, z: target.z + 3.4 + 1.22 };
+    this.chassisBody.position.set(this.axlePos.x, this.groundY, this.axlePos.z);
+    this.chassisBody.velocity.set(0, 0, 0);
+    this.chassisBody.angularVelocity.set(0, 0, 0);
+    this.chassisBody.quaternion.setFromEuler(0, this.carHeading, 0);
   }
 
   teleportHome() {
-    this.chassisBody.position.set(0, this.groundY, 6);
-    this.chassisBody.velocity.set(0, 0, 0);
-    this.chassisBody.angularVelocity.set(0, 0, 0);
     this.carHeading = 0;
     this.carSpeed = 0;
+    this.axlePos = { x: 0, z: 6 + 1.22 };
+    this.chassisBody.position.set(this.axlePos.x, this.groundY, this.axlePos.z);
+    this.chassisBody.velocity.set(0, 0, 0);
+    this.chassisBody.angularVelocity.set(0, 0, 0);
+    this.chassisBody.quaternion.setFromEuler(0, this.carHeading, 0);
   }
 
   // ---------- 7. PHÍM ----------
@@ -572,20 +577,22 @@ export class PlayableWorldEngine {
       if (this.keys.right) this.carHeading -= 2.3 * dt * dir;
     }
 
-    /* Điều khiển trực tiếp thân vật lý: chỉ vị trí + yaw */
+    /* Lái arcade: PIVOT quanh TRỤC BÁNH SAU — đầu xe quét vòng, cảm giác lái thật */
+    const fx = -Math.sin(this.carHeading);
+    const fz = -Math.cos(this.carHeading);
+    this.axlePos.x = THREE.MathUtils.clamp(this.axlePos.x + fx * this.carSpeed * dt, -(this.bounds - 3), this.bounds - 3);
+    this.axlePos.z = THREE.MathUtils.clamp(this.axlePos.z + fz * this.carSpeed * dt, -(this.bounds - 3), this.bounds - 3);
+
     this.chassisBody.wakeUp();
-    this.chassisBody.velocity.x = -Math.sin(this.carHeading) * this.carSpeed;
-    this.chassisBody.velocity.z = -Math.cos(this.carHeading) * this.carSpeed;
+    this.chassisBody.velocity.set(fx * this.carSpeed, 0, fz * this.carSpeed);
+    this.chassisBody.position.set(this.axlePos.x + fx * 1.22, this.groundY, this.axlePos.z + fz * 1.22);
     this.chassisBody.angularVelocity.set(0, 0, 0);
     this.chassisBody.quaternion.setFromEuler(0, this.carHeading, 0);
 
-    /* Neo cứng mặt đất — không bay, không chìm, không nảy */
-    this.chassisBody.position.y = this.groundY;
-
     this.world.step(1 / 60, dt, 3);
 
-    /* Sau step: siết lại neo (va chạm có thể đẩy nhẹ) */
-    this.chassisBody.position.y = this.groundY;
+    /* Sau step: khôi phục neo (va chạm có thể xô lệch nhẹ) */
+    this.chassisBody.position.set(this.axlePos.x + fx * 1.22, this.groundY, this.axlePos.z + fz * 1.22);
     this.chassisBody.quaternion.setFromEuler(0, this.carHeading, 0);
 
     /* Sync hình ảnh */
