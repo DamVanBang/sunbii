@@ -80,7 +80,18 @@ a { color: inherit; }
 }
 .brand i { color: var(--gold); font-style: normal; padding-inline: 0.15em; }
 
-.teleport { display: flex; gap: 0.45rem; flex-wrap: wrap; justify-content: flex-end; max-width: 62vw; }
+.teleport { display: flex; gap: 0.45rem; flex-wrap: wrap; justify-content: flex-end; max-width: 58vw; }
+.topbar-right { display: flex; align-items: center; gap: 0.45rem; pointer-events: auto; }
+.audio-btn {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: var(--glass); color: var(--paper);
+  border: 1px solid var(--glass-line);
+  backdrop-filter: blur(8px);
+  font-size: 1rem;
+  transition: background 0.25s, transform 0.25s var(--ease-out, cubic-bezier(.22,1,.36,1));
+}
+.audio-btn:hover { background: var(--gold); color: var(--ink); transform: translateY(-2px); }
+.audio-btn.is-muted { opacity: 0.55; }
 .tp-btn {
   font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em;
   background: var(--glass); color: var(--paper);
