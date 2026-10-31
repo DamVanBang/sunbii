@@ -755,9 +755,15 @@ export class PlayableWorldEngine {
       if (this.jumpY === 0) this.jumpV = 0;
     }
 
-    this.world.step(1 / 60, dt, 3);
+    this.world.step(1 / 60, dt, 10);
 
-    /* Neo mặt đất + sync */
+    /* Neo mặt đất + sync
+       axlePos LUÔN lấy lại từ vị trí THẬT của chassis: code tích phân dt đầy đủ
+       trong khi world.step bỏ bớt sim-time khi dt > maxSubSteps·1/60 (máy <20fps)
+       → hai đường tích phân lệch nhau dần → vòng wake 6m nhìn nhầm chỗ,
+       props xe sắp đâm vào vẫn ngủ → xe xuyên qua như ma. Đây là nguồn chuẩn duy nhất. */
+    this.axlePos.x = this.chassisBody.position.x + Math.sin(this.carHeading) * 1.22;
+    this.axlePos.z = this.chassisBody.position.z + Math.cos(this.carHeading) * 1.22;
     this.chassisBody.position.y = this.groundY;
     this.chassisBody.quaternion.setFromEuler(0, this.carHeading, 0);
     this.chassisBody.velocity.y = 0;

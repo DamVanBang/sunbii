@@ -11,7 +11,7 @@ import * as CANNON from 'cannon-es';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { PlayableWorldEngine } from './engine.js?v=34';
+import { PlayableWorldEngine } from './engine.js?v=35';
 
 /* Màu trạm đã dịu (desaturated) cho cảnh 3D — UI drawer dùng cùng giá trị */
 const STATIONS = [

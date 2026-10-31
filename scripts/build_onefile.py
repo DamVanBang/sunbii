@@ -13,7 +13,7 @@ app = (ROOT / "js" / "app.js").read_text(encoding="utf-8")
 
 # 1) Inline CSS
 html = html.replace(
-    '<link rel="stylesheet" href="css/style.css?v=34" />',
+    '<link rel="stylesheet" href="css/style.css?v=35" />',
     "<style>\n" + css + "\n</style>",
 )
 
@@ -24,12 +24,12 @@ html = html.replace(
 engine = engine.replace("import * as THREE from 'three';\n", "")
 engine = engine.replace("import * as CANNON from 'cannon-es';\n", "")
 engine = engine.replace("export class PlayableWorldEngine", "class PlayableWorldEngine")
-app = app.replace("import { PlayableWorldEngine } from './engine.js?v=34';\n", "")
+app = app.replace("import { PlayableWorldEngine } from './engine.js?v=35';\n", "")
 
 assert "</script" not in engine and "</script" not in app, "JS chứa </script> — cần escape"
 
 html = html.replace(
-    '<script type="module" src="js/app.js?v=34"></script>',
+    '<script type="module" src="js/app.js?v=35"></script>',
     "<script type=\"module\">\n" + engine + "\n" + app + "\n</script>",
 )
 
