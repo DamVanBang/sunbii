@@ -91,7 +91,12 @@ function onZoneChange(zone) {
   drawer.setAttribute('aria-hidden', 'false');
 }
 
-const engine = new PlayableWorldEngine(container, onZoneChange, { stations: STATIONS, bounds: 45 });
+let engine = null;
+try {
+  engine = new PlayableWorldEngine(container, onZoneChange, { stations: STATIONS, bounds: 45 });
+} catch (e) {
+  (window.__buildErrors = window.__buildErrors || []).push('CONSTRUCTOR: ' + e.message + ' | ' + String(e.stack).split('\n')[1]);
+}
 window.__world = engine;
 
 /* ============================================================
@@ -609,7 +614,71 @@ function buildNature() {
   // Đá tảng rải
   [[9, 14, 0.7], [-8, 16, 0.55], [16, 8, 0.5], [-16, 12, 0.6], [0, -20, 0.7], [20, -14, 0.45], [-20, 14, 0.5]].forEach(([x, z, s]) => rock(x, z, s));
 
-  // HÀNG RÀO GỖ quanh quảng trường (bỏ 6 cửa rộng ±24° tại miệng đường)
+  // Bụi cây + hoa màu điểm xuyết
+  const bushMat = new THREE.MeshStandardMaterial({ color: '#6B8E5E', roughness: 0.85 });
+  const flowerColors = ['#C98E3F', '#B5533C', '#E8DFC8', '#8B7FB5'];
+  for (let i = 0; i < 16; i++) {
+    const ang = (i / 16) * Math.PI * 2 + 0.3;
+    const r = 12 + Math.random() * 20;
+    const bx = Math.cos(ang) * r;
+    const bz = Math.sin(ang) * r;
+    const bush = new THREE.Mesh(new THREE.SphereGeometry(0.42, 9, 7), bushMat);
+    bush.position.set(bx, 0.32, bz);
+    bush.castShadow = true;
+    engine.scene.add(bush);
+    if (i % 2 === 0) {
+      const flower = new THREE.Mesh(
+        new THREE.SphereGeometry(0.09, 8, 6),
+        new THREE.MeshStandardMaterial({ color: flowerColors[i % 4], roughness: 0.5 })
+      );
+      flower.position.set(bx + 0.5, 0.14, bz + 0.4);
+      engine.scene.add(flower);
+    }
+  }
+}
+
+/* ============================================================
+   SÂN CHƠI — domino, tháp thùng, spinner, hầm, pad boost
+   ============================================================ */
+function buildPlayground() {
+  // Domino 8 viên — húc đổ dây chuyền
+  for (let i = 0; i < 8; i++) {
+    engine.addDynamicBox({
+      pos: new THREE.Vector3(-8 + i * 0.75, 0.75, 10.5),
+      size: { x: 0.24, y: 1.5, z: 0.55 },
+      color: i % 2 ? '#E8DFC8' : '#B5533C', mass: 0.4, rotY: 0.08,
+    });
+  }
+  // Tháp thùng 3 tầng — đạp sập được
+  for (let lv = 0; lv < 3; lv++) {
+    for (let c = 0; c < 2; c++) {
+      engine.addDynamicBox({
+        pos: new THREE.Vector3(14 + c * 1.05 + (lv % 2) * 0.5, 0.52 + lv * 1.04, -4),
+        size: { x: 1.0, y: 1.0, z: 1.0 },
+        color: ['#C98E3F', '#B5533C', '#8B7355'][lv], mass: 1.6, rotY: (lv * 0.4) % Math.PI,
+      });
+    }
+  }
+  // Spinner thanh quay — đi gần là bị huý
+  engine.addSpinner(-12, -6);
+  // Hầm đi qua trên đường ra API
+  engine.addStaticBox({ pos: new THREE.Vector3(-2.4, 1.6, -17), size: { x: 0.5, y: 3.2, z: 2.2 }, color: '#4A6FA5', metalness: 0.4, roughness: 0.4 });
+  engine.addStaticBox({ pos: new THREE.Vector3(2.4, 1.6, -17), size: { x: 0.5, y: 3.2, z: 2.2 }, color: '#4A6FA5', metalness: 0.4, roughness: 0.4 });
+  engine.addStaticBox({ pos: new THREE.Vector3(0, 3.4, -17), size: { x: 5.3, y: 0.5, z: 2.4 }, color: '#4A6FA5', metalness: 0.4, roughness: 0.4 });
+  // 2 pad boost — lái qua là nhảy + bùng tốc độ
+  engine.addBoostPad(0, 14, '#10B981');
+  engine.addBoostPad(13, 0, '#10B981');
+  // Bóng tiếp xúc cho các cụm lớn
+  engine.addContactShadow(24.5, 1, 10, 0.22);
+  engine.addContactShadow(0, -24, 7, 0.18);
+  engine.addContactShadow(-24, 0, 6, 0.16);
+  engine.addContactShadow(0, 24, 6, 0.16);
+}
+
+/* Hàng rào gỗ quanh quảng trường (chừa 6 cửa tại miệng đường) */
+function buildFences() {
+  const wood = new THREE.MeshStandardMaterial({ color: '#96754B', roughness: 0.8 });
+  const woodDark = new THREE.MeshStandardMaterial({ color: '#7A5C3E', roughness: 0.8 });
   const roadAngles = STATIONS.map((s) => Math.atan2(s.z, s.x));
   const R = 10.8;
   const gapCheck = (ang) => roadAngles.some((ra) => {
@@ -623,15 +692,13 @@ function buildNature() {
     if (blocked) { prev = null; continue; }
     const px = Math.cos(a) * R, pz = Math.sin(a) * R;
     if (prev) {
-      // cột tại điểm hiện tại
-      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 0.95, 8), mats.wood);
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.11, 0.95, 8), wood);
       post.position.set(px, 0.47, pz);
       post.castShadow = true;
       engine.scene.add(post);
-      // thanh ngang nối prev → hiện tại
       const mx = (px + prev.x) / 2, mz = (pz + prev.z) / 2;
       const len = Math.hypot(px - prev.x, pz - prev.z);
-      const rail = new THREE.Mesh(new THREE.BoxGeometry(len, 0.09, 0.06), mats.woodDark);
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(len, 0.09, 0.06), woodDark);
       rail.position.set(mx, 0.72, mz);
       rail.rotation.y = -Math.atan2(pz - prev.z, px - prev.x);
       rail.castShadow = true;
@@ -639,7 +706,6 @@ function buildNature() {
       const rail2 = rail.clone();
       rail2.position.y = 0.42;
       engine.scene.add(rail2);
-      // vật lý chặn 1 thân dài cho cả đoạn
       const b = new CANNON.Body({ mass: 0, material: engine.defaultMaterial });
       b.addShape(new CANNON.Box(new CANNON.Vec3(len / 2, 0.45, 0.08)));
       b.position.set(mx, 0.5, mz);
@@ -827,6 +893,42 @@ function initAudio() {
       o.start(t);
       o.stop(t + 0.22);
     },
+    whoosh() {
+      if (!started || !ctx || muted) return;
+      const t = ctx.currentTime;
+      const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.4), ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const f = ctx.createBiquadFilter();
+      f.type = 'bandpass';
+      f.frequency.value = 900;
+      f.Q.value = 1.2;
+      const g = ctx.createGain();
+      g.gain.value = 0.35;
+      src.connect(f);
+      f.connect(g);
+      g.connect(master);
+      src.start(t);
+    },
+    chime() {
+      if (!started || !ctx || muted) return;
+      const t = ctx.currentTime;
+      [[880, 0], [1174.66, 0.12]].forEach(([freq, dt]) => {
+        const o = ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.value = freq;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t + dt);
+        g.gain.exponentialRampToValueAtTime(0.22, t + dt + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dt + 0.9);
+        o.connect(g);
+        g.connect(master);
+        o.start(t + dt);
+        o.stop(t + dt + 1);
+      });
+    },
     toggleMute() {
       muted = !muted;
       if (ctx && master) master.gain.setTargetAtTime(muted ? 0 : 0.5, ctx.currentTime, 0.05);
@@ -855,16 +957,13 @@ function initAudio() {
   });
 }
 
-/* ============================================================
-   BOOT — camera bay vào + model 3D tải từ mạng
-   ============================================================ */
-buildGround();
-buildSignage();
-buildWorkshop();
-buildStationProps();
-buildNature();
-initAudio();
-wireHUD();
+/* BOOT — camera bay vào + model 3D tải từ mạng */
+[buildGround, buildSignage, buildWorkshop, buildStationProps, buildNature, buildFences, buildPlayground, initAudio, wireHUD].forEach((fn) => {
+  try { fn(); } catch (e) {
+    (window.__buildErrors = window.__buildErrors || []).push(fn.name + ': ' + e.message);
+    console.error('BUILD FAIL', fn.name, e);
+  }
+});
 
 /* Model xe thật: CesiumMilkTruck (Khronos glTF Sample Models, CC-BY)
    qua jsDelivr — lỗi mạng giữ nguyên xe procedural fallback */
