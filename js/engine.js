@@ -476,8 +476,9 @@ export class PlayableWorldEngine {
       this.wheelMeshes.push(g);
     });
 
-    /* Va chạm → âm thanh */
+    /* Va chạm → âm thanh + thức tỉnh vật thể bị tông */
     this.chassisBody.addEventListener('collide', (e) => {
+      if (e.body && e.body.wakeUp) e.body.wakeUp();
       const v = Math.abs(e.contact.getImpactVelocityAlongNormal());
       if (v > 2 && this.onCollide) this.onCollide(Math.min(v / 10, 1));
     });
@@ -729,6 +730,18 @@ export class PlayableWorldEngine {
     const fz = -Math.cos(this.carHeading);
     this.axlePos.x = THREE.MathUtils.clamp(this.axlePos.x + fx * this.carSpeed * dt, -(this.bounds - 3), this.bounds - 3);
     this.axlePos.z = THREE.MathUtils.clamp(this.axlePos.z + fz * this.carSpeed * dt, -(this.bounds - 3), this.bounds - 3);
+
+    /* THỨC TỈNH vùng gần xe — đảm bảo mọi prop gần xe luôn tương tác
+       (sleeping bodies đôi khi không thức vì ngưỡng velocity của cannon) */
+    const carX = this.axlePos.x + fx * 1.22;
+    const carZ = this.axlePos.z + fz * 1.22;
+    for (const item of this.syncList) {
+      if (item.body.sleepState !== 0) {
+        const dx = item.body.position.x - carX;
+        const dz = item.body.position.z - carZ;
+        if (dx * dx + dz * dz < 36) item.body.wakeUp(); // bán kính 6m
+      }
+    }
 
     this.chassisBody.wakeUp();
     this.chassisBody.velocity.set(fx * this.carSpeed, 0, fz * this.carSpeed);
