@@ -43,6 +43,11 @@ img { max-width: 100%; height: auto; display: block; }
 a { color: inherit; }
 ::selection { background: var(--gold); color: var(--dark); }
 
+/* A11y: focus bằng bàn phím luôn thấy rõ */
+a:focus-visible, button:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--red); outline-offset: 3px;
+}
+
 .container { width: min(1180px, 92%); margin-inline: auto; }
 .container--narrow { width: min(860px, 92%); }
 
@@ -60,6 +65,8 @@ a { color: inherit; }
   transition: opacity 0.65s ease, visibility 0.65s;
 }
 .preloader.is-done { opacity: 0; visibility: hidden; }
+/* JS không chạy (no-js không được gỡ) → preloader tự ẩn, không che nội dung */
+html.no-js .preloader { display: none; }
 .pre-inner { text-align: center; width: min(340px, 80vw); }
 .pre-logo { margin: 0 auto 1.4rem; height: 58px; width: auto; filter: brightness(0) invert(1); opacity: 0.95; }
 .pre-num {
@@ -72,7 +79,7 @@ a { color: inherit; }
   background: linear-gradient(90deg, var(--red), var(--gold));
   transition: width 0.25s ease;
 }
-.pre-note { font-size: 0.7rem; letter-spacing: 0.34em; color: rgba(255, 255, 255, 0.55); }
+.pre-note { font-size: 0.7rem; letter-spacing: 0.34em; color: rgba(255, 255, 255, 0.75); }
 
 /* ---------- Custom cursor ---------- */
 .cursor-dot, .cursor-ring {
@@ -97,7 +104,7 @@ a { color: inherit; }
   transition: transform 0.3s var(--ease-out), box-shadow 0.3s, background 0.3s, color 0.3s;
 }
 .btn-lg { padding: 1.05rem 2.2rem; font-size: 1.02rem; }
-.btn-sm { padding: 0.55rem 1.1rem; font-size: 0.85rem; }
+.btn-sm { padding: 0.7rem 1.2rem; min-height: 44px; font-size: 0.85rem; }
 .btn-solid { background: var(--red); color: #fff; box-shadow: 0 12px 28px -12px rgba(216, 67, 21, 0.55); }
 .btn-solid:hover { background: var(--red-deep); transform: translateY(-2px); }
 .btn-ghost { background: transparent; color: var(--dark); border: 1.5px solid rgba(38, 50, 56, 0.3); }
@@ -133,9 +140,13 @@ a { color: inherit; }
 }
 .nav-link:hover::after, .nav-link.is-active::after { width: 100%; }
 
+/* CTA nav dạng ghost — tinh gọn hơn btn mặc định */
+.nav-cta { padding: 0.55rem 1.2rem; font-size: 0.88rem; min-height: 44px; }
+
 .nav-toggle {
   display: none; flex-direction: column; gap: 5px; z-index: 85;
   background: none; border: 0; padding: 8px; cursor: pointer;
+  min-width: 44px; min-height: 44px; align-items: center; justify-content: center;
 }
 .nav-toggle span { width: 24px; height: 2px; background: var(--dark); transition: 0.3s var(--ease-out); }
 .nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
@@ -143,9 +154,18 @@ a { color: inherit; }
 .nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 .mobile-menu {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 84;
   display: flex; flex-direction: column; gap: 0.2rem;
   padding: 0.8rem 1.4rem 1.4rem; background: var(--paper);
   border-bottom: 1px solid var(--line);
+  opacity: 0; visibility: hidden; transform: translateY(-10px); pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.25s,
+    transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.mobile-menu.is-open { opacity: 1; visibility: visible; transform: none; pointer-events: auto; }
+/* Menu mobile chỉ tồn tại ở layout mobile — nếu kẹt .is-open khi resize lên desktop thì ẩn hẳn */
+@media (min-width: 901px) {
+  .mobile-menu { display: none; }
 }
 .mobile-menu a { padding: 0.65rem 0.4rem; text-decoration: none; font-weight: 600; border-bottom: 1px dashed var(--line); }
 .mobile-menu .btn { border-bottom: 0; margin-top: 0.8rem; }
@@ -182,11 +202,11 @@ a { color: inherit; }
 
 .eyebrow {
   font-size: 0.78rem; font-weight: 800; letter-spacing: 0.28em;
-  color: var(--red); text-transform: uppercase; margin-bottom: 1.2rem;
+  color: var(--red-deep); text-transform: uppercase; margin-bottom: 1.2rem;
 }
 .hero-title {
-  font-size: clamp(2.8rem, 7.5vw, 6.2rem);
-  font-weight: 900; line-height: 1.02; letter-spacing: -0.03em; color: var(--dark);
+  font-size: clamp(2.1rem, 7vw, 5.4rem);
+  font-weight: 900; line-height: 1.18; letter-spacing: -0.03em; color: var(--dark);
 }
 .hero-title em {
   font-style: normal;
@@ -207,10 +227,12 @@ a { color: inherit; }
 }
 .hero-stats dt { font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 900; color: var(--red); line-height: 1.1; font-variant-numeric: tabular-nums; }
 .hero-stats dd { font-size: 0.82rem; color: var(--ink-soft); letter-spacing: 0.02em; }
+/* Ô "8:00–21:00" — chữ nhỏ hơn dt thường và không được wrap xuống dòng */
+.hero-stats div:last-child dt { font-size: clamp(1.15rem, 2vw, 1.55rem); white-space: nowrap; }
 
 .hero-scroll {
   position: absolute; bottom: 1.6rem; left: 50%; transform: translateX(-50%); z-index: 2;
-  width: 26px; height: 44px; border: 2px solid rgba(38, 50, 56, 0.35); border-radius: 999px;
+  width: 44px; height: 44px; border: 2px solid rgba(38, 50, 56, 0.35); border-radius: 999px;
 }
 .hero-scroll span {
   position: absolute; top: 7px; left: 50%; width: 4px; height: 9px; margin-left: -2px;
@@ -227,7 +249,7 @@ a { color: inherit; }
   display: block; transform: translateY(112%); will-change: transform;
   padding-block: 0.09em; margin-block: -0.09em;
 }
-html.no-js .line { transform: none; }
+html.no-js .line, html.gsap-fail .line { transform: none; }
 
 /* ---------- Marquee ---------- */
 .marquee {
@@ -247,7 +269,7 @@ html.no-js .line { transform: none; }
 .section-head { max-width: 720px; margin-bottom: clamp(2.4rem, 5vw, 4rem); }
 .section-title {
   font-size: clamp(2rem, 4.6vw, 3.6rem);
-  font-weight: 900; line-height: 1.06; letter-spacing: -0.025em; color: var(--dark);
+  font-weight: 900; line-height: 1.18; letter-spacing: -0.025em; color: var(--dark);
 }
 .section-title em {
   font-style: normal;
@@ -272,7 +294,7 @@ html.no-js .line { transform: none; }
 .manifesto-text .mw.is-lit { opacity: 1; transform: translateY(0); }
 .manifesto-text em { font-style: normal; color: var(--gold); }
 .manifesto-text em .mw { color: inherit; }
-html.no-js .manifesto-text .mw { opacity: 1; transform: none; }
+html.no-js .manifesto-text .mw, html.gsap-fail .manifesto-text .mw { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   .manifesto-text .mw { opacity: 1 !important; transform: none !important; }
 }
@@ -291,11 +313,11 @@ html.no-js .manifesto-text .mw { opacity: 1; transform: none; }
 .mi-index {
   display: inline-flex; align-items: center; justify-content: center;
   width: 2.2rem; height: 2.2rem; border-radius: 10px;
-  background: linear-gradient(135deg, var(--red), var(--gold));
+  background: linear-gradient(135deg, var(--red-deep), var(--red));
   color: #fff; font-weight: 900; font-size: 0.95rem; margin-bottom: 1rem;
 }
 .manifesto-item h3 { font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; }
-.manifesto-item p { font-size: 0.92rem; color: rgba(238, 241, 242, 0.72); }
+.manifesto-item p { font-size: 0.92rem; color: rgba(238, 241, 242, 0.75); }
 
 /* ---------- Horizontal showcase ---------- */
 .showcase { position: relative; background: var(--paper); border-bottom: 1px solid var(--line); }
@@ -337,6 +359,10 @@ html.no-js .manifesto-text .mw { opacity: 1; transform: none; }
   transition: transform 0.6s var(--ease-out), filter 0.4s;
 }
 .panel:hover .panel-media { transform: scale(1.045); }
+/* Panel "sắp ra mắt" (không phải link) — tắt mọi hiệu ứng hover cấp card */
+.panel--soon { cursor: default; }
+.panel--soon:hover { transform: none; box-shadow: none; }
+.panel--soon:hover .panel-media { transform: none; }
 .panel-body { padding: 1.5rem 1.6rem 1.7rem; display: flex; flex-direction: column; gap: 0.55rem; flex: 1; }
 .panel-body h3 { font-size: 1.35rem; font-weight: 800; color: var(--dark); }
 .panel-body p { font-size: 0.94rem; color: var(--ink-soft); flex: 1; }
@@ -398,10 +424,11 @@ html.no-js .manifesto-text .mw { opacity: 1; transform: none; }
 }
 .numbers-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.6rem; }
 .number-item b {
-  display: block; font-size: clamp(2rem, 4.4vw, 3.4rem); font-weight: 900;
+  display: block; font-size: clamp(1.9rem, 3.2vw, 2.8rem); font-weight: 900;
   color: var(--gold); line-height: 1.1; font-variant-numeric: tabular-nums;
 }
-.number-item span { font-size: 0.85rem; color: rgba(255, 255, 255, 0.66); }
+.number-item span { font-size: 0.85rem; color: rgba(255, 255, 255, 0.75); }
+.number-item small { display: block; font-size: 0.72rem; color: rgba(255, 255, 255, 0.75); margin-top: 0.25rem; }
 
 /* ---------- Ecosystem media filters (dùng chung cho panel) ---------- */
 .eco-media--warm { filter: sepia(0.2) saturate(1.1); }
@@ -409,7 +436,7 @@ html.no-js .manifesto-text .mw { opacity: 1; transform: none; }
 .eco-media--gold { filter: sepia(0.3) saturate(1.25); }
 .eco-media--red { filter: sepia(0.45) hue-rotate(-25deg) saturate(1.2); }
 .eco-link {
-  font-weight: 700; font-size: 0.85rem; color: var(--red);
+  font-weight: 700; font-size: 0.85rem; color: var(--red-deep);
   display: inline-flex; align-items: center; gap: 0.3rem;
 }
 .eco-link i { font-style: normal; transition: transform 0.3s; }
@@ -432,7 +459,7 @@ html.no-js .manifesto-text .mw { opacity: 1; transform: none; }
 }
 .project-card:hover .project-media { transform: scale(1.05); }
 .project-body { padding: 1.5rem 1.6rem 1.7rem; display: flex; flex-direction: column; gap: 0.55rem; flex: 1; }
-.project-tag { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.22em; color: var(--red); }
+.project-tag { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.22em; color: var(--red-deep); }
 .project-body h3 { font-size: 1.35rem; font-weight: 800; color: var(--dark); }
 .project-body p { font-size: 0.94rem; color: var(--ink-soft); flex: 1; }
 .text-cta {
@@ -467,15 +494,15 @@ html.no-js .manifesto-text .mw { opacity: 1; transform: none; }
 .founder-card {
   margin-top: 2rem; padding: 1.3rem 1.4rem;
   background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px; backdrop-filter: blur(6px);
+  border-radius: var(--radius); backdrop-filter: blur(6px);
 }
 .founder-name { font-weight: 700; }
 .founder-link { color: var(--gold); text-decoration: none; border-bottom: 1px dashed rgba(251, 192, 45, 0.5); }
 .founder-link:hover { border-bottom-style: solid; }
-.founder-note { font-size: 0.85rem !important; color: rgba(238, 241, 242, 0.6) !important; margin-top: 0.3rem !important; }
+.founder-note { font-size: 0.85rem !important; color: rgba(238, 241, 242, 0.75) !important; margin-top: 0.3rem !important; }
 .founder-links { margin-top: 0.9rem !important; }
 .pride-figure img { border-radius: var(--radius); box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.55); }
-.pride-figure figcaption { margin-top: 0.9rem; font-size: 0.82rem; color: rgba(238, 241, 242, 0.55); text-align: center; }
+.pride-figure figcaption { margin-top: 0.9rem; font-size: 0.82rem; color: rgba(238, 241, 242, 0.75); text-align: center; }
 
 /* ---------- Timeline ---------- */
 .timeline { list-style: none; position: relative; padding-left: 2.2rem; }
@@ -492,14 +519,14 @@ html.no-js .manifesto-text .mw { opacity: 1; transform: none; }
   box-shadow: 0 0 0 4px rgba(216, 67, 21, 0.14);
 }
 .timeline-item:last-child { padding-bottom: 0; }
-.timeline-year { font-weight: 900; color: var(--red); font-size: 1.05rem; letter-spacing: 0.02em; }
+.timeline-year { font-weight: 900; color: var(--red-deep); font-size: 1.05rem; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
 .timeline-item h3 { font-size: 1.12rem; font-weight: 800; color: var(--dark); margin-bottom: 0.3rem; }
 .timeline-item p { color: var(--ink-soft); font-size: 0.95rem; max-width: 60ch; }
 
 /* ---------- FAQ ---------- */
 .faq-list { display: flex; flex-direction: column; gap: 0.8rem; }
 .faq-list details {
-  background: var(--cream); border: 1px solid var(--line); border-radius: 14px;
+  background: var(--cream); border: 1px solid var(--line); border-radius: var(--radius);
   padding: 1.05rem 1.3rem; transition: border-color 0.3s, box-shadow 0.3s;
 }
 .faq-list details[open] { border-color: rgba(216, 67, 21, 0.4); box-shadow: 0 16px 40px -28px rgba(216, 67, 21, 0.5); }
@@ -518,7 +545,7 @@ html.no-js .manifesto-text .mw { opacity: 1; transform: none; }
 .faq-icon::after { width: 2px; height: 16px; }
 details[open] .faq-icon::after { transform: rotate(90deg); }
 .faq-body { margin-top: 0.8rem; color: var(--ink-soft); font-size: 0.95rem; }
-.faq-body a { color: var(--red); font-weight: 600; }
+.faq-body a { color: var(--red-deep); font-weight: 600; }
 
 /* ---------- Contact ---------- */
 .contact {
@@ -540,7 +567,7 @@ details[open] .faq-icon::after { transform: rotate(90deg); }
 }
 .contact-card {
   background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 16px; padding: 1.3rem 1rem; text-decoration: none;
+  border-radius: var(--radius); padding: 1.3rem 1rem; text-decoration: none;
   backdrop-filter: blur(8px);
   transition: transform 0.35s var(--ease-out), border-color 0.3s, background 0.3s;
 }
@@ -548,6 +575,7 @@ details[open] .faq-icon::after { transform: rotate(90deg); }
 .contact-card b { display: block; font-size: 0.95rem; margin-bottom: 0.25rem; color: var(--gold); }
 .contact-card span { font-size: 0.82rem; color: rgba(255, 255, 255, 0.78); word-break: break-word; }
 .contact .btn-gold { margin-top: 0.4rem; }
+.contact-note { margin-top: 1rem; font-size: 0.85rem; color: rgba(255, 255, 255, 0.75); }
 
 /* ---------- Footer ---------- */
 .site-footer { background: var(--paper); border-top: 1px solid var(--line); }
@@ -568,11 +596,13 @@ details[open] .faq-icon::after { transform: rotate(90deg); }
 .site-footer nav a {
   text-decoration: none; color: var(--ink-soft); font-size: 0.92rem;
   transition: color 0.25s, transform 0.25s; width: fit-content;
+  display: inline-flex; align-items: center; min-height: 44px;
 }
 .site-footer nav a:hover { color: var(--red); transform: translateX(3px); }
 .footer-banner img { width: 100%; height: auto; object-fit: cover; }
 .footer-legal {
   display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem;
+  width: min(1180px, 92%); margin-inline: auto;
   padding: 1.1rem 0; border-top: 1px solid var(--line);
   font-size: 0.8rem; color: var(--ink-soft);
 }
@@ -583,13 +613,18 @@ details[open] .faq-icon::after { transform: rotate(90deg); }
   z-index: 95; width: min(720px, 94%);
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   background: var(--dark); color: rgba(255, 255, 255, 0.85);
-  padding: 0.95rem 1.3rem; border-radius: 16px;
+  padding: 0.95rem 1.3rem; border-radius: var(--radius);
   box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.5);
   font-size: 0.86rem;
-  opacity: 0; transform: translateX(-50%) translateY(20px);
-  animation: cookieIn 0.5s var(--ease-out) 0.6s forwards;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translateX(-50%) translateY(12px);
+  transition: opacity 0.25s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.25s,
+    transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
 }
-@keyframes cookieIn { to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+.cookie-bar.is-visible {
+  opacity: 1; visibility: visible; pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
 .cookie-bar a { color: var(--gold); font-weight: 600; }
 .cookie-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
 .cookie-bar .btn-ghost { color: #fff; border-color: rgba(255, 255, 255, 0.35); }
@@ -601,8 +636,11 @@ details[open] .faq-icon::after { transform: rotate(90deg); }
   width: 46px; height: 46px; border-radius: 50%; border: 0; cursor: pointer;
   background: var(--dark); color: #fff; font-size: 1.1rem;
   box-shadow: var(--shadow-lg);
-  transition: transform 0.3s var(--ease-out), background 0.3s;
+  opacity: 0; visibility: hidden; transform: translateY(12px); pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.25s,
+    transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), background 0.3s;
 }
+.to-top.is-visible { opacity: 1; visibility: visible; transform: none; pointer-events: auto; }
 .to-top:hover { transform: translateY(-3px); background: var(--red); }
 
 /* ---------- Reveal states ---------- */
@@ -612,6 +650,7 @@ html.no-js .reveal, html.gsap-fail .reveal { opacity: 1; transform: none; }
   .reveal { opacity: 1 !important; transform: none !important; }
   .line { transform: none !important; }
   .marquee-track, .hero-scroll span { animation: none !important; }
+  .mobile-menu, .cookie-bar, .to-top { transition: none !important; }
 }
 
 /* ---------- Responsive ---------- */
@@ -634,6 +673,7 @@ html.no-js .reveal, html.gsap-fail .reveal { opacity: 1; transform: none; }
 @media (max-width: 620px) {
   .timeline-item { grid-template-columns: 1fr; gap: 0.3rem; }
   .footer-grid { grid-template-columns: 1fr; gap: 1.6rem; }
+  .numbers-grid { grid-template-columns: 1fr; }
   .cookie-bar { flex-direction: column; align-items: flex-start; }
 }
 

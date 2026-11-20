@@ -1,112 +1,605 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="no-js">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>SUNBII WORLD — Trang chủ chơi được | Kiến tạo bởi Trí tuệ Việt</title>
-  <meta name="description" content="Trang chủ sunbii.vn phiên bản thế giới mở 3D: lái xe buggy bằng WASD, húc đổ chữ SUNBII, khám phá 6 trạm — API, Xưởng Services, Invites, EV-S3, Forum và Founder. Phím WASD để chạy, SHIFT để tăng tốc." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SUNBII Technology — API, pin xe điện, thiệp online Việt Nam</title>
+  <meta name="description" content="SUNBII Technology — hệ sinh thái công nghệ Việt: API tự động hoá, pin xe điện, thiệp online, âm thanh và buồng lái số EV-S3. Kiến tạo từ năm 2021." />
   <meta name="author" content="Đàm Văn Bằng" />
-  <meta name="robots" content="index, follow" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large" />
   <link rel="canonical" href="https://sunbii.vn/" />
-  <meta name="theme-color" content="#E8DEC8" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="SUNBII WORLD — Trang chủ chơi được" />
-  <meta property="og:description" content="Lái xe khám phá hệ sinh thái SUNBII trong thế giới 3D có vật lý thật. 6 trạm — 6 thế giới web." />
+  <meta property="og:site_name" content="SUNBII Technology" />
+  <meta property="og:url" content="https://sunbii.vn/" />
+  <meta property="og:title" content="SUNBII Technology — API, pin xe điện, thiệp online Việt Nam" />
+  <meta property="og:description" content="Hệ sinh thái công nghệ Việt: API tự động hoá, pin xe điện, thiệp online, âm thanh và buồng lái số EV-S3." />
   <meta property="og:image" content="https://sunbii.vn/images/thumbail.png" />
+  <meta property="og:image:width" content="1025" />
+  <meta property="og:image:height" content="528" />
+  <meta property="og:image:alt" content="Hệ sinh thái SUNBII Technology — API, pin xe điện, thiệp online và buồng lái số EV-S3" />
+  <meta property="og:locale" content="vi_VN" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#263238" />
 
   <link rel="icon" type="image/png" href="https://sunbii.vn/images/favicons/favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="https://sunbii.vn/images/favicons/favicon.svg" />
   <link rel="shortcut icon" href="https://sunbii.vn/images/favicons/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="https://sunbii.vn/images/favicons/apple-touch-icon.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=35" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  </noscript>
+  <link rel="stylesheet" href="assets/css/style.css" />
 
-  <script type="importmap">
+  <script type="application/ld+json">
   {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
-      "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
-    }
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "SUNBII Technology",
+    "alternateName": "SUNBII",
+    "url": "https://sunbii.vn/",
+    "logo": "https://sunbii.vn/images/LOGO-ECOSYSTEM-ORG.png",
+    "slogan": "Kiến tạo bởi Trí tuệ Việt",
+    "foundingDate": "2021-01-20",
+    "founder": {
+      "@type": "Person",
+      "name": "Đàm Văn Bằng",
+      "birthDate": "2006-10-05",
+      "url": "https://damvanbang.sunbii.vn/"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+84-345696820",
+      "contactType": "customer service",
+      "availableLanguage": ["Vietnamese"]
+    },
+    "sameAs": [
+      "https://forum.sunbii.vn/",
+      "https://api.sunbii.vn/",
+      "https://invites.sunbii.vn/",
+      "https://services.sunbii.vn/",
+      "https://ev.sunbii.vn/",
+      "https://fb.com/damvanbang2006"
+    ]
   }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "SUNBII Technology là ai?",
+        "acceptedAnswer": { "@type": "Answer", "text": "SUNBII Technology là hệ sinh thái công nghệ do Đàm Văn Bằng sáng lập từ ngày 20/01/2021, hoạt động trên 6 mảng: phần mềm & API, dịch vụ pin xe điện, thiệp mời online, thiết kế đồ hoạ, âm thanh và buồng lái số EV-S3." }
+      },
+      {
+        "@type": "Question",
+        "name": "SUNBII API dùng để làm gì?",
+        "acceptedAnswer": { "@type": "Answer", "text": "SUNBII API là workspace gồm 17 module phục vụ tự động hoá: xác thực, captcha, thông báo, quản lý bảo hành, kho, kiểm tra thiết bị và vận hành server — truy cập tại api.sunbii.vn." }
+      },
+      {
+        "@type": "Question",
+        "name": "SUNBII Services sửa chữa những gì?",
+        "acceptedAnswer": { "@type": "Answer", "text": "SUNBII Services chuyên pin lithium, phụ tùng xe điện: đóng khối pin, cân cell, sửa BMS và controller, kèm hệ thống tra cứu bảo hành điện tử minh bạch tại services.sunbii.vn." }
+      },
+      {
+        "@type": "Question",
+        "name": "Làm sao tạo thiệp mời online?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Truy cập invites.sunbii.vn, chọn mẫu thiệp cưới, sinh nhật hoặc họp lớp, tuỳ biến nội dung, album, âm nhạc rồi chia sẻ đường dẫn — có RSVP và sổ lưu bút." }
+      },
+      {
+        "@type": "Question",
+        "name": "EV-S3 CyberCockpit hoạt động thế nào?",
+        "acceptedAnswer": { "@type": "Answer", "text": "EV-S3 CyberCockpit là hệ thống điều khiển trung tâm cho xe điện trên nền ESP32-S3: giao tiếp JK BMS qua BLE/4G, định vị GPS L76K, hiển thị bản đồ MapLibre 3D và giám sát từng cell pin." }
+      },
+      {
+        "@type": "Question",
+        "name": "Chính sách bảo hành ở đâu?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Xem Chính sách bảo hành & đổi trả và tra cứu trực tiếp tại services.sunbii.vn/tra-cuu.html." }
+      },
+      {
+        "@type": "Question",
+        "name": "Liên hệ SUNBII bằng cách nào?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Gọi 0345 696 820, Zalo 0342 424 932, Facebook fb.com/damvanbang2006 hoặc email damvanbang2006@gmail.com." }
+      }
+    ]
+  }
+  </script>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+  <script defer src="assets/js/main.js"></script>
 </head>
 <body>
+  <a class="skip-link" href="#main">Bỏ qua đến nội dung chính</a>
 
-  <!-- Khung chứa thế giới 3D -->
-  <div id="world"></div>
-
-  <!-- ===== LOADING ===== -->
-  <div class="loader" id="loader" aria-hidden="true">
-    <p class="loader-brand">SUNBII <span>WORLD</span></p>
-    <p class="loader-sub">ĐANG DỰNG THẾ GIỚI VẬT LÝ…</p>
-    <div class="loader-bar"><span></span></div>
-    <p class="loader-tip">Mẹo: nhấn <b>SHIFT</b> để nitro — húc đổ chữ SUNBII ngay giữa quảng trường!</p>
+  <!-- ===== PRELOADER ===== -->
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="pre-inner">
+      <img src="https://sunbii.vn/images/LOGO-ECOSYSTEM-ORG.png" alt="" class="pre-logo" width="150" height="56" />
+      <p class="pre-num"><span id="preCount">00</span>%</p>
+      <div class="pre-bar"><span id="preBarFill"></span></div>
+      <p class="pre-note">KIẾN TẠO BỞI TRÍ TUỆ VIỆT</p>
+    </div>
   </div>
 
-  <!-- ===== TOP HUD: brand + quick teleport ===== -->
-  <header class="topbar" aria-label="Điều hướng nhanh">
-    <a class="brand" href="#" id="brandHome">SUNBII<i>▸</i>WORLD</a>
-    <div class="topbar-right">
-      <nav class="teleport" id="teleportMenu" aria-label="Di chuyển nhanh tới trạm"></nav>
-      <button class="audio-btn" id="audioToggle" aria-label="Bật/tắt âm thanh" title="Âm thanh">🔊</button>
+  <!-- Con trỏ tùy biến (desktop) -->
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <!-- ================= HEADER ================= -->
+  <header class="site-header" id="top">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="SUNBII Technology — về đầu trang">
+        <img src="https://sunbii.vn/images/LOGO-ECOSYSTEM-ORG.png" alt="Logo SUNBII Technology" width="150" height="56" class="brand-logo" />
+      </a>
+
+      <nav class="site-nav" aria-label="Điều hướng chính">
+        <a class="nav-link" href="#manifesto">Triết lý</a>
+        <a class="nav-link" href="#ecosystem">Sản phẩm</a>
+        <a class="nav-link" href="#values">Giá trị</a>
+        <a class="nav-link" href="#pride">Niềm tự hào</a>
+        <a class="nav-link" href="#journey">Hành trình</a>
+        <a class="nav-link" href="#faq">Hỏi đáp</a>
+        <a class="btn btn-ghost nav-cta magnetic" href="#contact">Liên hệ</a>
+      </nav>
+
+      <button class="nav-toggle" aria-expanded="false" aria-controls="mobileMenu" aria-label="Mở menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
+    <div class="mobile-menu" id="mobileMenu" hidden>
+      <a href="#manifesto">Triết lý</a>
+      <a href="#ecosystem">Sản phẩm</a>
+      <a href="#values">Giá trị</a>
+      <a href="#pride">Niềm tự hào</a>
+      <a href="#journey">Hành trình</a>
+      <a href="#faq">Hỏi đáp</a>
+      <a href="chinh-sach/dieu-khoan-su-dung.html">Chính sách &amp; Điều khoản</a>
+      <a class="btn btn-solid" href="#contact">Liên hệ</a>
+    </div>
+    <div class="scroll-progress" aria-hidden="true"><span id="scrollProgress"></span></div>
   </header>
 
-  <!-- ===== KEYCAP GUIDE (desktop) ===== -->
-  <div class="keycaps" aria-hidden="true">
-    <div class="kc-row"><span class="kc" data-key="KeyW">W</span></div>
-    <div class="kc-row">
-      <span class="kc" data-key="KeyA">A</span>
-      <span class="kc" data-key="KeyS">S</span>
-      <span class="kc" data-key="KeyD">D</span>
+  <main id="main">
+
+    <!-- ================= HERO ================= -->
+    <section class="hero" aria-label="Giới thiệu SUNBII">
+      <canvas id="emberCanvas" aria-hidden="true"></canvas>
+      <div class="hero-glow" id="heroGlow" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <p class="eyebrow reveal">SUNBII TECHNOLOGY · THÀNH LẬP 20·01·2021</p>
+        <h1 class="hero-title">
+          <span class="line-mask"><span class="line">API, pin xe điện,</span></span>
+          <span class="line-mask"><span class="line">thiệp online —</span></span>
+          <span class="line-mask"><span class="line"><em>sản phẩm Việt</em></span></span>
+          <span class="line-mask"><span class="line">chạy thật mỗi ngày</span></span>
+        </h1>
+        <p class="hero-sub reveal">
+          Nơi những bộ óc Việt Nam tạo ra sản phẩm công nghệ vươn tầm thế giới — từ hệ API
+          tự động hoá, pin xe điện, thiệp mời online đến buồng lái số. Một hệ sinh thái,
+          một tinh thần: <strong>sáng tạo và chất lượng.</strong>
+        </p>
+        <div class="hero-actions reveal">
+          <a class="btn btn-solid btn-lg magnetic" href="#ecosystem">Khám phá hệ sinh thái</a>
+          <a class="btn btn-ghost btn-lg magnetic" href="#contact">Làm việc cùng chúng tôi</a>
+        </div>
+        <dl class="hero-stats reveal" aria-label="Số liệu nhanh">
+          <div><dt>2021</dt><dd>Năm thành lập</dd></div>
+          <div><dt data-count="6">6</dt><dd>Mảng sản phẩm</dd></div>
+          <div><dt data-count="17" data-suffix="+">17+</dt><dd>Module SUNBII API</dd></div>
+          <div><dt>8:00–21:00</dt><dd>Hỗ trợ mỗi ngày (kể cả Chủ nhật)</dd></div>
+        </dl>
+      </div>
+      <a class="hero-scroll" href="#manifesto" aria-label="Cuộn xuống phần triết lý"><span></span></a>
+    </section>
+
+    <!-- ================= MARQUEE ================= -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track" id="marqueeTrack">
+        <span>SUNBII API</span><i>✦</i><span>SUNBII SERVICES</span><i>✦</i><span>SUNBII INVITES</span><i>✦</i>
+        <span>SUNBII DESIGN</span><i>✦</i><span>SUNBII AUDIO</span><i>✦</i><span>EV-S3 CYBERCOCKPIT</span><i>✦</i>
+        <span>SUNBII FORUM</span><i>✦</i>
+      </div>
     </div>
-    <div class="kc-row">
-      <span class="kc kc-wide" data-key="ShiftLeft">SHIFT · NITRO</span>
-      <span class="kc kc-wide" data-key="KeyR">R · RESET</span>
+
+    <!-- ================= MANIFESTO ================= -->
+    <section class="section manifesto" id="manifesto" aria-labelledby="manifestoTitle">
+      <div class="container">
+        <p class="eyebrow reveal">01 · TRIẾT LÝ SUNBII</p>
+        <h2 class="manifesto-text" id="manifestoTitle">
+          Chúng tôi <em>không bán sản phẩm</em> — chúng tôi kiến tạo những công cụ giúp
+          người Việt <em>tự tin vươn ra thế giới</em>: phần mềm chạy thật, pin đi thật xa,
+          thiệp chạm thật cảm xúc.
+        </h2>
+        <div class="manifesto-grid">
+          <div class="manifesto-item reveal">
+            <span class="mi-index">A</span>
+            <h3>Sản phẩm chạy thật</h3>
+            <p>Mỗi thứ ra mắt đều đang vận hành hằng ngày: API xử lý yêu cầu, pin trên đường phố,
+              thiệp được khách mời mở ra. Không demo, không screenshot ảo.</p>
+          </div>
+          <div class="manifesto-item reveal">
+            <span class="mi-index">B</span>
+            <h3>Kỹ thuật là nền tảng</h3>
+            <p>Từ firmware ESP32-S3 đến shader WebGL, mọi thứ tự tay kiến tạo và kiểm soát
+              đến chi tiết cuối — vì muốn nhìn rõ từng lớp trong sản phẩm của mình.</p>
+          </div>
+          <div class="manifesto-item reveal">
+            <span class="mi-index">C</span>
+            <h3>Cộng đồng là mái nhà</h3>
+            <p>forum.sunbii.vn là nơi tri thức được chia sẻ ngược lại — vì một hệ sinh thái
+              chỉ lớn lên khi những người xung quanh cùng lớn.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ECOSYSTEM — HORIZONTAL SHOWCASE ================= -->
+    <section class="showcase" id="ecosystem" aria-labelledby="ecosystemTitle">
+      <div class="showcase-pin">
+        <div class="showcase-head container">
+          <p class="eyebrow">02 · HỆ SINH THÁI</p>
+          <h2 class="section-title" id="ecosystemTitle">Sáu mảng. Một tinh thần <em>SUNBII</em>.</h2>
+          <p class="showcase-hint" aria-hidden="true">CUỘN NGANG →</p>
+        </div>
+        <div class="showcase-track" id="showcaseTrack">
+          <a class="panel" href="https://api.sunbii.vn/" target="_blank" rel="noopener">
+            <span class="panel-index">01</span>
+            <div class="panel-media" role="img" aria-label="Ảnh minh hoạ SUNBII API — workspace tự động hoá với 17 module" style="background-image:url('https://sunbii.vn/images/SUNBII Software.jpg')"></div>
+            <div class="panel-body">
+              <h3>SUNBII API</h3>
+              <p>Workspace 17 module: xác thực, captcha, thông báo, quản lý bảo hành, kho, kiểm tra thiết bị, vận hành server — tự động hoá hàng triệu yêu cầu mỗi ngày.</p>
+              <span class="eco-link">api.sunbii.vn <i aria-hidden="true">↗</i></span>
+            </div>
+          </a>
+          <a class="panel" href="https://services.sunbii.vn/" target="_blank" rel="noopener">
+            <span class="panel-index">02</span>
+            <div class="panel-media" role="img" aria-label="Ảnh minh hoạ SUNBII Services — pin lithium và phụ tùng xe điện" style="background-image:url('https://sunbii.vn/images/SUNBII Services.jpg')"></div>
+            <div class="panel-body">
+              <h3>SUNBII Services</h3>
+              <p>Pin lithium &amp; phụ tùng xe điện: đóng khối pin, cân cell, sửa BMS/controller. Tra cứu bảo hành điện tử minh bạch, tư vấn miễn phí.</p>
+              <span class="eco-link">services.sunbii.vn <i aria-hidden="true">↗</i></span>
+            </div>
+          </a>
+          <a class="panel" href="https://invites.sunbii.vn/" target="_blank" rel="noopener">
+            <span class="panel-index">03</span>
+            <div class="panel-media eco-media--warm" role="img" aria-label="Ảnh minh hoạ SUNBII Invites — thiệp mời cưới, sinh nhật, họp lớp online" style="background-image:url('https://sunbii.vn/images/SUNBII Designs.jpg')"></div>
+            <div class="panel-body">
+              <h3>SUNBII Invites</h3>
+              <p>Thiệp cưới, sinh nhật, họp lớp online: link riêng, album, âm nhạc, RSVP &amp; sổ lưu bút. Xem ngay trên trình duyệt.</p>
+              <span class="eco-link">invites.sunbii.vn <i aria-hidden="true">↗</i></span>
+            </div>
+          </a>
+          <a class="panel" href="https://ev.sunbii.vn/" target="_blank" rel="noopener">
+            <span class="panel-index">04</span>
+            <div class="panel-media eco-media--dark" role="img" aria-label="Ảnh minh hoạ EV-S3 CyberCockpit — buồng lái số giám sát pin xe điện" style="background-image:url('https://sunbii.vn/images/SUNBII Software.jpg')"></div>
+            <div class="panel-body">
+              <h3>EV-S3 CyberCockpit</h3>
+              <p>Buồng lái số: ESP32-S3, JK BMS qua BLE/4G, GPS L76K, bản đồ MapLibre 3D — giám sát từng cell pin trong một màn hình.</p>
+              <span class="eco-link">ev.sunbii.vn <i aria-hidden="true">↗</i></span>
+            </div>
+          </a>
+          <div class="panel panel--soon">
+            <span class="panel-index">05</span>
+            <div class="panel-media eco-media--gold" role="img" aria-label="Ảnh minh hoạ SUNBII Audio — tai nghe và thiết bị âm thanh HI-RES" style="background-image:url('https://sunbii.vn/images/SUNBII Audio.jpg')"></div>
+            <div class="panel-body">
+              <p class="project-tag">SẮP RA MẮT</p>
+              <h3>SUNBII Audio</h3>
+              <p>Âm thanh HI-RES, thiết kế tinh xảo — tai nghe và thiết bị audio chăm chút từng chi tiết, mang chuẩn thẩm mỹ Việt ra thế giới.</p>
+              <span class="eco-link">Đang phát triển</span>
+            </div>
+          </div>
+          <a class="panel" href="https://forum.sunbii.vn/" target="_blank" rel="noopener">
+            <span class="panel-index">06</span>
+            <div class="panel-media eco-media--red" role="img" aria-label="Ảnh minh hoạ SUNBII Forum — cộng đồng chia sẻ tri thức công nghệ" style="background-image:url('https://sunbii.vn/images/SUNBII Designs.jpg')"></div>
+            <div class="panel-body">
+              <h3>SUNBII Forum</h3>
+              <p>Cộng đồng &amp; tri thức: kinh nghiệm, tài liệu, hỗ trợ sản phẩm — nơi sunbii.tech đổi tên thành forum.sunbii.vn.</p>
+              <span class="eco-link">forum.sunbii.vn <i aria-hidden="true">↗</i></span>
+            </div>
+          </a>
+          <div class="panel panel-end" aria-hidden="true">
+            <p>TIẾP TỤC<br /><em>CUỘN XUỐNG ↓</em></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VALUES ================= -->
+    <section class="section" id="values" aria-labelledby="valuesTitle">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow reveal">03 · GIÁ TRỊ CỐT LÕI</p>
+          <h2 class="section-title" id="valuesTitle">
+            <span class="line-mask"><span class="line">Bốn nguyên tắc</span></span>
+            <span class="line-mask"><span class="line">không thể <em>thương lượng</em>.</span></span>
+          </h2>
+        </header>
+        <div class="values-grid">
+          <article class="value-card tilt reveal">
+            <span class="value-num">01</span>
+            <h3>Sáng tạo như hơi thở</h3>
+            <p>Mỗi tuần một ý tưởng được thử nghiệm thật. Ý tưởng không chạy được cũng là bài học
+              có giá trị — điều quan trọng là không ngừng chế tạo.</p>
+          </article>
+          <article class="value-card tilt reveal">
+            <span class="value-num">02</span>
+            <h3>Chất lượng là danh dự</h3>
+            <p>Sản phẩm gắn tên SUNBII phải đáng tin ở mốc thời gian dài: cell pin chuẩn, code có
+              kiểm thử, bảo hành công khai trên hệ thống.</p>
+          </article>
+          <article class="value-card tilt reveal">
+            <span class="value-num">03</span>
+            <h3>Minh bạch tuyệt đối</h3>
+            <p>Mọi dịch vụ đều có dấu vết: phiếu bảo hành điện tử, bảng giá công khai, quy trình
+              rõ ràng. Khách hàng tra cứu được mọi lúc.</p>
+          </article>
+          <article class="value-card tilt reveal">
+            <span class="value-num">04</span>
+            <h3>Tận tâm đến cùng</h3>
+            <p>Mỗi ngày từ 8:00 đến 21:00 — kể cả Chủ nhật — tụi mình đều trực hỗ trợ. Chuyện
+              của bạn cũng là chuyện của nhà mình, và tụi mình xử lý đến khi xong.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= NUMBERS ================= -->
+    <section class="numbers" aria-label="SUNBII qua con số">
+      <div class="container numbers-grid">
+        <div class="number-item reveal"><b data-count="1000000" data-suffix="+">1.000.000+</b><span>Yêu cầu API xử lý mỗi ngày <small>theo số liệu nội bộ tháng 10/2026</small></span></div>
+        <div class="number-item reveal"><b data-count="6">6</b><span>Mảng sản phẩm &amp; dịch vụ</span></div>
+        <div class="number-item reveal"><b data-count="17" data-suffix="+">17+</b><span>Module trong SUNBII API Workspace</span></div>
+        <div class="number-item reveal"><b data-count="5" data-suffix="+">5+</b><span>Năm kiến tạo không ngừng nghỉ</span></div>
+      </div>
+    </section>
+
+    <!-- ================= PROJECTS ================= -->
+    <section class="section section--alt" id="projects" aria-labelledby="projectsTitle">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow reveal">04 · DỰ ÁN TIÊU BIỂU</p>
+          <h2 class="section-title" id="projectsTitle">
+            <span class="line-mask"><span class="line">Sản phẩm</span></span>
+            <span class="line-mask"><span class="line">nói thay <em>chúng tôi</em>.</span></span>
+          </h2>
+        </header>
+
+        <div class="project-grid">
+          <article class="project-card project-card--wide">
+            <div class="project-media" role="img" aria-label="Ảnh minh hoạ hệ thống SUNBII API tự động thực thi tác vụ" style="background-image:url('https://sunbii.vn/images/SUNBII Software.jpg')"></div>
+            <div class="project-body">
+              <p class="project-tag">SUNBII API · AUTOMATION</p>
+              <h3>Hệ thống API thực thi tác vụ tự động</h3>
+              <p>Nền tảng bảo mật, hiệu năng cao phục vụ hàng triệu yêu cầu mỗi ngày mà không cần can thiệp thủ công — từ quản lý bảo hành thiết bị đến điều phối máy chủ. 17 module bao trọn vận hành: xác thực, captcha, thông báo, kho, server control.</p>
+              <a class="text-cta" href="https://api.sunbii.vn/" target="_blank" rel="noopener">Khám phá workspace <i aria-hidden="true">→</i></a>
+            </div>
+          </article>
+          <article class="project-card">
+            <div class="project-media" role="img" aria-label="Ảnh minh hoạ thiệp mời online giàu cảm xúc của SUNBII Invites" style="background-image:url('https://sunbii.vn/images/SUNBII Designs.jpg')"></div>
+            <div class="project-body">
+              <p class="project-tag">SUNBII INVITES · WEDDINGS</p>
+              <h3>Thiệp mời online giàu cảm xúc</h3>
+              <p>Kể chuyện ngày chung đôi bằng hình ảnh, âm nhạc và chuyển động dịu dàng. RSVP, lời chúc và bản đồ ngay trong một đường dẫn.</p>
+              <a class="text-cta" href="https://invites.sunbii.vn/" target="_blank" rel="noopener">Xem thư viện mẫu <i aria-hidden="true">→</i></a>
+            </div>
+          </article>
+          <article class="project-card">
+            <div class="project-media" role="img" aria-label="Ảnh minh hoạ buồng lái số EV-S3 CyberCockpit cho xe điện" style="background-image:url('https://sunbii.vn/images/SUNBII Services.jpg')"></div>
+            <div class="project-body">
+              <p class="project-tag">EV-S3 · EMBEDDED</p>
+              <h3>CyberCockpit cho xe điện</h3>
+              <p>Trung tâm điều khiển ESP32-S3 giao tiếp JK BMS qua BLE/4G, định vị L76K và hiển thị MapLibre 3D — mức pin, cell, vị trí trong một màn hình.</p>
+              <a class="text-cta" href="https://ev.sunbii.vn/" target="_blank" rel="noopener">Vào buồng lái demo <i aria-hidden="true">→</i></a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PRIDE ================= -->
+    <section class="section pride" id="pride" aria-labelledby="prideTitle">
+      <div class="container pride-grid">
+        <div class="pride-copy">
+          <p class="eyebrow reveal">05 · NIỀM TỰ HÀO VIỆT NAM</p>
+          <h2 class="section-title" id="prideTitle">
+            <span class="line-mask"><span class="line">Dấu ấn Việt Nam —</span></span>
+            <span class="line-mask"><span class="line"><em>chất lượng toàn cầu.</em></span></span>
+          </h2>
+          <p class="reveal">Chúng tôi không chỉ xây dựng sản phẩm, chúng tôi xây dựng niềm tin. Mỗi dòng code,
+            mỗi bản thiết kế, mỗi cell pin đều mang tâm huyết và trí tuệ của người Việt Nam.</p>
+          <blockquote class="pride-quote reveal">
+            “Khát vọng của SUNBII là chứng minh rằng một nhóm kỹ sư trẻ Việt Nam có thể
+            kiến tạo hệ sinh thái công nghệ sánh vai bất kỳ đối tác quốc tế nào.”
+          </blockquote>
+          <div class="founder-card reveal">
+            <p class="founder-name">Sáng lập &amp; Kiến tạo bởi <a href="https://damvanbang.sunbii.vn/" class="founder-link">Đàm Văn Bằng</a></p>
+            <p class="founder-note">Sinh năm 2006 · Bắt đầu SUNBII năm lớp 9 · Vẫn đang viết code mỗi ngày — cả phần mềm lẫn phần cứng.</p>
+            <p class="founder-links"><a href="https://damvanbang.sunbii.vn/" class="text-cta">Xem hồ sơ sáng lập <i aria-hidden="true">→</i></a></p>
+          </div>
+        </div>
+        <figure class="pride-figure reveal">
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhzOzQyLn9F34zQhEg6vpYofyygCf62iF9L293fbwVpFQYHByiUu-TTDMErh1S2gB7k10Sx_tMaCZ3Mej5bBAyYut4nEjJe7qEuhuRlD7hQRKAQxJErsqGb-L0XBR4SIi7WiOT1PEoFRT_CXIP9yVuxnH_oGM0YRBADZnNZT7eKwVG4l2DMbmbwPaMhXh4/s668/B%E1%BA%A3n%20%C4%90%E1%BB%93%20Vi%E1%BB%87t%20Nam%201.png"
+               alt="Bản đồ Việt Nam" loading="lazy" width="493" height="668" />
+          <figcaption>Hệ sinh thái SUNBII — kiến tạo và vận hành hoàn toàn tại Việt Nam.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ================= JOURNEY ================= -->
+    <section class="section" id="journey" aria-labelledby="journeyTitle">
+      <div class="container">
+        <header class="section-head">
+          <p class="eyebrow reveal">06 · HÀNH TRÌNH</p>
+          <h2 class="section-title" id="journeyTitle">
+            <span class="line-mask"><span class="line">Từ một ý tưởng</span></span>
+            <span class="line-mask"><span class="line">thành <em>hệ sinh thái</em>.</span></span>
+          </h2>
+        </header>
+        <ol class="timeline">
+          <li class="timeline-item reveal">
+            <span class="timeline-year">2021</span>
+            <div><h3>Khoảnh khắc khởi nguồn</h3><p>Ngày 20/01/2021, SUNBII ra đời với một câu hỏi: sản phẩm công nghệ của người Việt có thể đạt chuẩn thế giới chứ?</p></div>
+          </li>
+          <li class="timeline-item reveal">
+            <span class="timeline-year">2022–23</span>
+            <div><h3>Dịch vụ &amp; phần mềm nền tảng</h3><p>SUNBII Services lớn lên từ sửa chữa công nghệ cao sang chuyên sâu pin xe điện; SUNBII API hình thành để tự động hoá toàn bộ quy trình vận hành.</p></div>
+          </li>
+          <li class="timeline-item reveal">
+            <span class="timeline-year">2024</span>
+            <div><h3>Hệ sinh thái kết nối</h3><p>Workspace API mở rộng với hàng chục module; SUNBII Design phục vụ nhận diện thương hiệu cho cả hệ sinh thái và đối tác.</p></div>
+          </li>
+          <li class="timeline-item reveal">
+            <span class="timeline-year">2025–26</span>
+            <div><h3>Sản phẩm cảm xúc &amp; buồng lái số</h3><p>SUNBII Invites ra mắt; EV-S3 CyberCockpit đưa SUNBII vào mảng hệ thống nhúng xe điện. forum.sunbii.vn trở thành mái nhà cộng đồng.</p></div>
+          </li>
+          <li class="timeline-item reveal">
+            <span class="timeline-year">TIẾP THEO</span>
+            <div><h3>Chương đang được viết</h3><p>SUNBII Audio tiến gần tới ngày ra mắt. Và có thể — sản phẩm tiếp theo sẽ bắt đầu từ chính cuộc trò chuyện của bạn.</p></div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ================= FAQ ================= -->
+    <section class="section section--alt" id="faq" aria-labelledby="faqTitle">
+      <div class="container container--narrow">
+        <header class="section-head">
+          <p class="eyebrow reveal">07 · HỎI ĐÁP</p>
+          <h2 class="section-title" id="faqTitle">
+            <span class="line-mask"><span class="line">Câu hỏi</span></span>
+            <span class="line-mask"><span class="line"><em>thường gặp.</em></span></span>
+          </h2>
+        </header>
+        <div class="faq-list reveal">
+          <details>
+            <summary>SUNBII Technology là ai?<span class="faq-icon" aria-hidden="true"></span></summary>
+            <div class="faq-body">SUNBII là hệ sinh thái công nghệ do Đàm Văn Bằng sáng lập ngày 20/01/2021, gồm 6 mảng: phần mềm &amp; API, dịch vụ pin xe điện, thiệp mời online, thiết kế đồ hoạ, âm thanh và buồng lái số EV-S3.</div>
+          </details>
+          <details>
+            <summary>SUNBII API dùng để làm gì?<span class="faq-icon" aria-hidden="true"></span></summary>
+            <div class="faq-body">Workspace tại api.sunbii.vn gồm 17 module phục vụ tự động hoá: xác thực, captcha, thông báo, quản lý bảo hành, kho, kiểm tra thiết bị và vận hành server.</div>
+          </details>
+          <details>
+            <summary>SUNBII Services sửa chữa những gì?<span class="faq-icon" aria-hidden="true"></span></summary>
+            <div class="faq-body">Chuyên pin lithium và phụ tùng xe điện: đóng khối pin, cân cell, sửa BMS/controller, kèm tra cứu bảo hành điện tử minh bạch tại services.sunbii.vn.</div>
+          </details>
+          <details>
+            <summary>Làm sao tạo thiệp mời online?<span class="faq-icon" aria-hidden="true"></span></summary>
+            <div class="faq-body">Vào invites.sunbii.vn, chọn mẫu cưới / sinh nhật / họp lớp, tuỳ biến nội dung, album, âm nhạc rồi chia sẻ đường dẫn — có RSVP và sổ lưu bút.</div>
+          </details>
+          <details>
+            <summary>EV-S3 CyberCockpit hoạt động thế nào?<span class="faq-icon" aria-hidden="true"></span></summary>
+            <div class="faq-body">Bộ điều khiển trung tâm trên ESP32-S3 nói chuyện với JK BMS qua BLE/4G, nhận GPS L76K và vẽ hành trình lên MapLibre 3D — theo dõi từng cell pin ngay trên điện thoại.</div>
+          </details>
+          <details>
+            <summary>Chính sách bảo hành ở đâu?<span class="faq-icon" aria-hidden="true"></span></summary>
+            <div class="faq-body">Xem <a href="chinh-sach/bao-hanh-doi-tra.html">Chính sách bảo hành &amp; đổi trả</a> và tra cứu trực tiếp tại services.sunbii.vn/tra-cuu.html.</div>
+          </details>
+          <details>
+            <summary>Liên hệ SUNBII bằng cách nào?<span class="faq-icon" aria-hidden="true"></span></summary>
+            <div class="faq-body">Gọi <a href="tel:0345696820">0345 696 820</a>, Zalo <a href="https://zalo.me/0342424932" target="_blank" rel="noopener">0342 424 932</a>, Facebook <a href="https://fb.com/damvanbang2006" target="_blank" rel="noopener">fb.com/damvanbang2006</a> hoặc email <a href="mailto:damvanbang2006@gmail.com">damvanbang2006@gmail.com</a>.</div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CONTACT ================= -->
+    <section class="section contact" id="contact" aria-labelledby="contactTitle">
+      <canvas id="emberCanvasFooter" aria-hidden="true"></canvas>
+      <div class="container contact-inner">
+        <p class="eyebrow reveal">08 · LIÊN HỆ</p>
+        <h2 class="section-title" id="contactTitle">
+          <span class="line-mask"><span class="line">Sẵn sàng</span></span>
+          <span class="line-mask"><span class="line"><em>hợp tác?</em></span></span>
+        </h2>
+        <p class="section-lead reveal">Kể tụi mình nghe ý tưởng của bạn nhé. Đội ngũ SUNBII luôn sẵn sàng
+          lắng nghe và cùng bạn biến ý tưởng đó thành hiện thực.</p>
+        <div class="contact-grid reveal">
+          <a class="contact-card magnetic" href="mailto:damvanbang2006@gmail.com">
+            <b>Email</b><span>damvanbang2006@gmail.com</span>
+          </a>
+          <a class="contact-card magnetic" href="tel:0345696820">
+            <b>Điện thoại</b><span>0345 696 820</span>
+          </a>
+          <a class="contact-card magnetic" href="https://zalo.me/0342424932" target="_blank" rel="noopener">
+            <b>Zalo</b><span>0342 424 932</span>
+          </a>
+          <a class="contact-card magnetic" href="https://fb.com/damvanbang2006" target="_blank" rel="noopener">
+            <b>Facebook</b><span>fb.com/damvanbang2006</span>
+          </a>
+        </div>
+        <a class="btn btn-gold btn-lg magnetic reveal" href="mailto:damvanbang2006@gmail.com?subject=%5BSUNBII%5D%20Đề%20nghị%20hợp%20tác">Gửi email hợp tác</a>
+        <p class="contact-note reveal">Phản hồi trong 24 giờ · không ràng buộc gì</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <img src="https://sunbii.vn/images/LOGO-ECOSYSTEM-ORG.png" alt="Logo SUNBII Technology" width="150" height="56" loading="lazy" />
+        <p>Kiến tạo bởi Trí tuệ Việt. Sáng lập bởi <a href="https://damvanbang.sunbii.vn/">Đàm Văn Bằng</a> · 20/01/2021.</p>
+        <p class="footer-social">
+          <a href="https://fb.com/damvanbang2006" target="_blank" rel="noopener">Facebook</a>
+          <a href="https://instagram.com/damvanbang2006" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://threads.net/@damvanbang2006" target="_blank" rel="noopener">Threads</a>
+        </p>
+      </div>
+      <nav aria-label="Hệ sinh thái">
+        <h3>Hệ sinh thái</h3>
+        <a href="https://api.sunbii.vn/" target="_blank" rel="noopener">SUNBII API</a>
+        <a href="https://services.sunbii.vn/" target="_blank" rel="noopener">SUNBII Services</a>
+        <a href="https://invites.sunbii.vn/" target="_blank" rel="noopener">SUNBII Invites</a>
+        <a href="https://ev.sunbii.vn/" target="_blank" rel="noopener">EV-S3 CyberCockpit</a>
+        <a href="https://forum.sunbii.vn/" target="_blank" rel="noopener">SUNBII Forum</a>
+      </nav>
+      <nav aria-label="Khám phá">
+        <h3>Khám phá</h3>
+        <a href="#manifesto">Triết lý</a>
+        <a href="#ecosystem">Sản phẩm</a>
+        <a href="#journey">Hành trình</a>
+        <a href="#faq">Hỏi đáp</a>
+        <a href="#contact">Liên hệ</a>
+      </nav>
+      <nav aria-label="Pháp lý và chính sách">
+        <h3>Pháp lý</h3>
+        <a href="chinh-sach/dieu-khoan-su-dung.html">Điều khoản sử dụng</a>
+        <a href="chinh-sach/bao-mat.html">Chính sách bảo mật</a>
+        <a href="chinh-sach/bao-hanh-doi-tra.html">Bảo hành &amp; đổi trả</a>
+        <a href="chinh-sach/cookie.html">Chính sách cookie</a>
+      </nav>
+    </div>
+    <div class="footer-banner" aria-hidden="true">
+      <img src="https://sunbii.vn/images/imgFooter.png" alt="" loading="lazy" width="1500" height="500" />
+    </div>
+    <div class="footer-legal">
+      <p>© <span id="year">2026</span> SUNBII Technology. Bảo lưu mọi quyền.</p>
+      <p>Điều khoản · Bảo mật · Bảo hành — cập nhật 2026.</p>
+    </div>
+  </footer>
+
+  <!-- Cookie consent -->
+  <div class="cookie-bar" id="cookieBar" role="dialog" aria-label="Cookie" hidden>
+    <p>Trang này không dùng cookie theo dõi — chỉ lưu lựa chọn cookie của bạn trên thiết bị để không hỏi lại bạn. Chi tiết trong
+      <a href="chinh-sach/cookie.html">Chính sách cookie</a> &amp;
+      <a href="chinh-sach/bao-mat.html">Chính sách bảo mật</a>.</p>
+    <div class="cookie-actions">
+      <button class="btn btn-ghost btn-sm" id="cookieDecline">Từ chối</button>
+      <button class="btn btn-solid btn-sm" id="cookieAccept">Đồng ý</button>
     </div>
   </div>
 
-  <!-- ===== MOBILE D-PAD ===== -->
-  <div class="dpad" id="dpad" aria-hidden="true">
-    <button class="dp" data-key="KeyW" style="grid-area:up">▲</button>
-    <button class="dp" data-key="KeyA" style="grid-area:left">◀</button>
-    <button class="dp" data-key="KeyS" style="grid-area:down">▼</button>
-    <button class="dp" data-key="KeyD" style="grid-area:right">▶</button>
-    <button class="dp dp-boost" data-key="ShiftLeft" style="grid-area:boost">N²O</button>
-  </div>
-
-  <!-- ===== MINIMAP ===== -->
-  <canvas class="minimap" id="minimap" width="150" height="150" aria-hidden="true"></canvas>
-
-  <!-- ===== STATION DRAWER ===== -->
-  <aside class="drawer" id="drawer" aria-hidden="true">
-    <button class="drawer-close" id="drawerClose" aria-label="Đóng bảng thông tin">✕</button>
-    <p class="drawer-ch" id="drawerCh">01</p>
-    <h2 class="drawer-name" id="drawerName">—</h2>
-    <p class="drawer-sub" id="drawerSub">—</p>
-    <p class="drawer-desc" id="drawerDesc">—</p>
-    <div class="drawer-specs" id="drawerSpecs"></div>
-    <a class="drawer-cta" id="drawerCta" href="#" target="_blank" rel="noopener">Mở trang ↗</a>
-    <p class="drawer-hint">Đỗ xe vào vòng sáng để mở lại bảng này bất cứ lúc nào</p>
-  </aside>
-
-  <!-- ===== HINT TOAST ===== -->
-  <div class="toast" id="toast">
-    🚗 Lái xe: <b>W A S D</b> · Nitro: <b>SHIFT</b> · <b>Kéo chuột</b> để xoay camera · <b>Bấm minimap</b> để bay tới trạm
-  </div>
-
-  <noscript>
-    <p style="position:fixed;inset:auto 1rem 1rem 1rem;z-index:99;background:#263238;color:#fff;padding:1rem;border-radius:8px;">
-      Thế giới 3D cần JavaScript. Nội dung nhanh: SUNBII Technology — hệ sinh thái công nghệ Việt (API · Services · Invites · EV-S3 · Forum). Liên hệ 0345 696 820 · damvanbang2006@gmail.com.
-    </p>
-  </noscript>
-
-  <script type="module" src="js/app.js?v=35"></script>
+  <button class="to-top" id="toTop" aria-label="Về đầu trang" hidden>↑</button>
 </body>
 </html>

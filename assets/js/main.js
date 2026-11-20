@@ -16,6 +16,28 @@
   var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var state = { vel: 0, lenis: null };
 
+  /* ---------------- Storage an toàn (localStorage có thể throw ở chế độ riêng tư) ----------------
+     Fallback in-memory: lựa chọn chỉ sống trong phiên — trang không bao giờ chết vì storage. */
+  var storage = (function () {
+    var mem = {};
+    return {
+      get: function (k) {
+        try { return window.localStorage.getItem(k); }
+        catch (e) { return Object.prototype.hasOwnProperty.call(mem, k) ? mem[k] : null; }
+      },
+      set: function (k, v) {
+        try { window.localStorage.setItem(k, v); }
+        catch (e) { mem[k] = v; }
+      },
+    };
+  })();
+
+  /* ---------------- Telemetry tối giản: chỉ đẩy event vào dataLayer nếu nó đã tồn tại ---------------- */
+  function track(name) {
+    if (!window.dataLayer) return;
+    try { window.dataLayer.push({ event: name }); } catch (e) { /* im lặng */ }
+  }
+
   /* ---------------- Header state + progress ---------------- */
   var header = document.querySelector('.site-header');
   var progress = document.getElementById('scrollProgress');
@@ -26,10 +48,11 @@
     header.classList.toggle('is-scrolled', y > 24);
     var max = docEl.scrollHeight - innerHeight;
     progress.style.width = (max > 0 ? (y / max) * 100 : 0) + '%';
-    if (toTop) toTop.hidden = y < 600;
+    if (toTop) toTop.classList.toggle('is-visible', y >= 600);
   }
 
   if (toTop) {
+    toTop.hidden = false; // hiển thị/ẩn qua class .is-visible (CSS) — hidden chỉ giữ cho trạng thái no-js ban đầu
     toTop.addEventListener('click', function () {
       if (state.lenis) state.lenis.scrollTo(0);
       else scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
@@ -40,36 +63,53 @@
   var toggle = document.querySelector('.nav-toggle');
   var menu = document.getElementById('mobileMenu');
   if (toggle && menu) {
+    menu.hidden = false; // mở/đóng qua class .is-open (CSS transition) — hidden chỉ giữ cho trạng thái no-js ban đầu
+    var setMenu = function (open) {
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
+      menu.classList.toggle('is-open', open);
+    };
     toggle.addEventListener('click', function () {
-      var open = toggle.getAttribute('aria-expanded') === 'true';
-      toggle.setAttribute('aria-expanded', String(!open));
-      menu.hidden = open;
+      setMenu(toggle.getAttribute('aria-expanded') !== 'true');
     });
     menu.addEventListener('click', function (e) {
-      if (e.target.closest('a')) {
-        toggle.setAttribute('aria-expanded', 'false');
-        menu.hidden = true;
-      }
+      if (e.target.closest('a')) setMenu(false);
     });
   }
 
   /* ---------------- Cookie consent ---------------- */
   var bar = document.getElementById('cookieBar');
-  if (bar && !localStorage.getItem('sunbii-cookie-consent')) {
-    setTimeout(function () { bar.hidden = false; }, 1400);
-    document.getElementById('cookieAccept').addEventListener('click', function () {
-      localStorage.setItem('sunbii-cookie-consent', 'granted');
-      bar.hidden = true;
+  if (bar) bar.hidden = false; // hiện/ẩn qua class .is-visible (CSS transition) — hidden chỉ giữ cho no-js
+  if (bar && !storage.get('sunbii-cookie-consent')) {
+    setTimeout(function () { bar.classList.add('is-visible'); }, 1400);
+    var acceptBtn = document.getElementById('cookieAccept');
+    var declineBtn = document.getElementById('cookieDecline');
+    if (acceptBtn) acceptBtn.addEventListener('click', function () {
+      storage.set('sunbii-cookie-consent', 'granted');
+      bar.classList.remove('is-visible');
+      track('cookie_consent_granted');
     });
-    document.getElementById('cookieDecline').addEventListener('click', function () {
-      localStorage.setItem('sunbii-cookie-consent', 'denied');
-      bar.hidden = true;
+    if (declineBtn) declineBtn.addEventListener('click', function () {
+      storage.set('sunbii-cookie-consent', 'denied');
+      bar.classList.remove('is-visible');
+      track('cookie_consent_denied');
     });
   }
 
   /* ---------------- Năm bản quyền ---------------- */
   var year = document.getElementById('year');
   if (year) year.textContent = new Date().getFullYear();
+
+  /* ---------------- Telemetry CTA chính (dataLayer, không thêm script ngoài) ---------------- */
+  [
+    ['.nav-cta', 'cta_nav_contact'],
+    ['.hero-actions .btn', 'cta_hero'],
+    ['.contact .btn-gold', 'cta_contact_email'],
+  ].forEach(function (pair) {
+    document.querySelectorAll(pair[0]).forEach(function (el) {
+      el.addEventListener('click', function () { track(pair[1]); });
+    });
+  });
 
   /* ---------------- Scrollspy ---------------- */
   var sections = document.querySelectorAll('main section[id]');
@@ -79,7 +119,10 @@
       entries.forEach(function (en) {
         if (!en.isIntersecting) return;
         navLinks.forEach(function (l) {
-          l.classList.toggle('is-active', l.getAttribute('href') === '#' + en.target.id);
+          var isActive = l.getAttribute('href') === '#' + en.target.id;
+          l.classList.toggle('is-active', isActive);
+          if (isActive) l.setAttribute('aria-current', 'true');
+          else l.removeAttribute('aria-current');
         });
       });
     }, { rootMargin: '-40% 0px -55% 0px' });
@@ -302,19 +345,20 @@
       }
     }
 
+    /* Tổng thời gian preloader ≤ 1.2s: 0.5s đếm song song với chờ font (tối đa 0.7s) + 0.05 + 0.3s kết */
     var fontsReady = Promise.race([
       document.fonts ? document.fonts.ready.catch(function () {}) : Promise.resolve(),
-      new Promise(function (r) { setTimeout(r, 1500); }),
+      new Promise(function (r) { setTimeout(r, 700); }),
     ]);
 
-    gsap.to(pct, { v: 82, duration: 1.2, ease: 'power1.inOut', onUpdate: paint });
+    gsap.to(pct, { v: 82, duration: 0.5, ease: 'power1.inOut', onUpdate: paint });
     fontsReady.then(function () {
       gsap.to(pct, {
-        v: 100, duration: 0.45, delay: 0.15, ease: 'power2.out',
+        v: 100, duration: 0.3, delay: 0.05, ease: 'power2.out',
         onUpdate: paint, onComplete: finishPreloader,
       });
     });
-    setTimeout(finishPreloader, 4000); // giới hạn tuyệt đối — không bao giờ kẹt
+    setTimeout(finishPreloader, 4000); // giữ failsafe — giới hạn tuyệt đối, không bao giờ kẹt
 
     if (reduced) {
       // tôn trọng reduced-motion: hiện hết, đếm nhanh, không tween
@@ -430,15 +474,6 @@
             },
           });
         },
-      });
-    });
-
-    /* ---- Parallax ảnh ---- */
-    gsap.utils.toArray('[data-parallax]').forEach(function (el) {
-      gsap.set(el, { scale: 1.18 });
-      gsap.to(el, {
-        yPercent: -9, ease: 'none',
-        scrollTrigger: { trigger: el.parentElement || el, start: 'top bottom', end: 'bottom top', scrub: true },
       });
     });
 
